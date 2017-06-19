@@ -9,7 +9,7 @@ import { HttpModule } from "@angular/http";
 @NgModule({
     imports: [
         CommonModule,
-		HttpModule
+        HttpModule
     ],
     declarations: [EssenceNg2TableComponent],
     exports: [EssenceNg2TableComponent]

@@ -2,11 +2,11 @@
  * Created by Hllinc on 2016-12-21 17:23.
  */
 
-import {Component, OnInit, OnDestroy, Input, Output, EventEmitter, DoCheck} from "@angular/core";
-import {ControlValueAccessor} from "@angular/forms";
-import {TableDataModel} from "./model/tableDataModel";
-import {Http, Response, Headers, RequestOptions} from "@angular/http";
-import {Observable} from "rxjs";
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from "@angular/core";
+import { ControlValueAccessor } from "@angular/forms";
+import { TableDataModel } from "./model/tableDataModel";
+import { Http, Response, Headers, RequestOptions } from "@angular/http";
+import { Observable } from "rxjs";
 import * as _ from "lodash";
 
 @Component({
@@ -31,12 +31,12 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param config
      */
     @Input()
-    set option (config: any) {
+    set option(config: any) {
         this._config = _.merge({}, this._defaultConfig, config);
         this._initTable();
     }
 
-    get option (): any {
+    get option(): any {
         return this._config;
     }
 
@@ -47,7 +47,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
     @Output()
     private ready: EventEmitter<any> = new EventEmitter<any>(false);
 
-    constructor (private http: Http) {
+    constructor(private http: Http) {
     }
 
     // 默认配置参数
@@ -91,18 +91,18 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
         }
     };
 
-    ngOnInit () {
+    ngOnInit() {
 
     }
 
-    ngOnDestroy () {
+    ngOnDestroy() {
         this._tableData = null;
     }
 
     /**
      * 加载表格数据
      */
-    private _initTable () {
+    private _initTable() {
         this.__sort();
         this.__filter();
         this.postData(this._config.serverUrl, this._config.serverParam).subscribe(
@@ -161,7 +161,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param column
      * @private
      */
-    private _sort (column: any) {
+    private _sort(column: any) {
         if (column.order) {
             if (column.order === 'asc') {
                 column.order = 'desc'
@@ -174,7 +174,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
         }
     }
 
-    private __sort () {
+    private __sort() {
         let orders: any = [];
         for (let i = 0; i < this._config.columns.items.length; i++) {
             let col = this._config.columns.items[i];
@@ -193,13 +193,13 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param column
      * @private
      */
-    private _filter ($event: any, column: any) {
+    private _filter($event: any, column: any) {
         let value = $event.target.value;
         column.filterProp.value = value.trim();
         this._initTable();
     }
 
-    private __filter () {
+    private __filter() {
         let filters: any = [];
         for (let i = 0; i < this._config.columns.items.length; i++) {
             let col = this._config.columns.items[i];
@@ -234,7 +234,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * 上一页方法
      * @private
      */
-    private _prePage () {
+    private _prePage() {
         this._config.serverParam.pageInfo.currentPageNum--;
         this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (this._config.serverParam.pageInfo.currentPageNum - 1);
         this._initTable();
@@ -244,7 +244,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * 下一页方法
      * @private
      */
-    private _nextPage () {
+    private _nextPage() {
         this._config.serverParam.pageInfo.currentPageNum++;
         this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (this._config.serverParam.pageInfo.currentPageNum - 1);
         this._initTable();
@@ -255,7 +255,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param num
      * @private
      */
-    private _toPage (num: number) {
+    private _toPage(num: number) {
         if (this._config.serverParam.pageInfo.currentPageNum !== num && num !== -1) {
             this._config.serverParam.pageInfo.currentPageNum = num;
             this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (num - 1);
@@ -269,7 +269,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @returns {string}
      * @private
      */
-    private _getColumnStyle (column: any) {
+    private _getColumnStyle(column: any) {
         let cls = [];
         cls.push(column.cls);
         if (column.order) {
@@ -284,7 +284,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @returns {Array}
      * @private
      */
-    private _numberArray (n: number) {
+    private _numberArray(n: number) {
         let result = [];
         for (let i: number = 0; i < n; i++) {
             result.push(i + 1);
@@ -298,7 +298,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @returns {boolean}
      * @private
      */
-    private _isFunction (param: any) {
+    private _isFunction(param: any) {
         return typeof param == 'function';
     }
 
@@ -309,7 +309,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param sumPageNum
      * @returns {string}
      */
-    private _generateForText (index: number, currentPageNum: number, sumPageNum: number): string {
+    private _generateForText(index: number, currentPageNum: number, sumPageNum: number): string {
         if (index === 1 || index === sumPageNum || currentPageNum + 1 === index || currentPageNum - 1 === index || currentPageNum === index) {
             return index.toString();
         } else {
@@ -324,7 +324,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param sumPageNum
      * @returns {boolean}
      */
-    private _generateForButton (index: number, currentPageNum: number, sumPageNum: number): boolean {
+    private _generateForButton(index: number, currentPageNum: number, sumPageNum: number): boolean {
         if ((index - currentPageNum > 2 || currentPageNum - index > 2) && index != 1 && index != sumPageNum) {
             return false;
         } else {
@@ -338,7 +338,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param data
      * @private
      */
-    private _checkboxChangeEvent ($event, data) {
+    private _checkboxChangeEvent($event, data) {
         data.selected = $event.target.checked;
         if (data.selected) {
             let allStatus = true;
@@ -359,7 +359,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param $event
      * @private
      */
-    private _checkboxAllChangeEvent ($event) {
+    private _checkboxAllChangeEvent($event) {
         let checked = $event.target.checked;
         for (let i = 0; i < this._tableData.pageInfo.items.length; i++) {
             this._tableData.pageInfo.items[i].selected = checked;
@@ -369,14 +369,14 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
     /**
      * 刷新列表数据
      */
-    refresh (): void {
+    refresh(): void {
         this._initTable();
     }
 
     /**
      * 获取选中数据
      */
-    getSelectedItems (): any[] {
+    getSelectedItems(): any[] {
         let result = [];
         for (let i = 0; i < this._tableData.pageInfo.items.length; i++) {
             if (this._tableData.pageInfo.items[i].selected) {
@@ -390,13 +390,13 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * 以下实现ControlValueAccessor接口的方法
      * @param value
      */
-    writeValue (value: any): void {
+    writeValue(value: any): void {
     }
 
-    registerOnChange (fn: any): void {
+    registerOnChange(fn: any): void {
     }
 
-    registerOnTouched (fn: any): void {
+    registerOnTouched(fn: any): void {
     }
 
 }
