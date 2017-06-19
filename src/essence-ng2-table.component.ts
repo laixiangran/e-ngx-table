@@ -3,10 +3,13 @@
  */
 
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from "@angular/core";
-import { ControlValueAccessor } from "@angular/forms";
+import { DomSanitizer } from "@angular/platform-browser";
 import { TableDataModel } from "./model/tableDataModel";
 import { Http, Response, Headers, RequestOptions } from "@angular/http";
-import { Observable } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/catch";
 import * as _ from "lodash";
 
 @Component({
@@ -15,16 +18,18 @@ import * as _ from "lodash";
     styleUrls: ['./essence-ng2-table.component.scss']
 })
 
-export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class EssenceNg2TableComponent implements OnInit, OnDestroy {
+
+    private getDataSubscription: Subscription;
 
     // 控制列表全选复选框状态
-    private _batchAllCheckStatus = false;
+    batchAllCheckStatus = false;
 
     // 用来合并配置的变量
-    private _config: any;
+    config: any;
 
     // 表格数据
-    private _tableData: TableDataModel = null;
+    tableData: TableDataModel = null;
 
     /**
      * 属性设置
@@ -32,12 +37,17 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      */
     @Input()
     set option(config: any) {
-        this._config = _.merge({}, this._defaultConfig, config);
-        this._initTable();
+        this.config = _.merge({}, this.defaultConfig, config);
+        let items: any[] = this.config.columns.items.map((item: any) => {
+            return _.merge({}, this.defaultItemsConfig, item);
+        });
+        this.config.columns.items = items;
+        console.log(this.config.columns.items);
+        this.creatTable();
     }
 
     get option(): any {
-        return this._config;
+        return this.config;
     }
 
     /**
@@ -47,11 +57,10 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
     @Output()
     private ready: EventEmitter<any> = new EventEmitter<any>(false);
 
-    constructor(private http: Http) {
-    }
+    constructor(private http: Http, public domSanitizer: DomSanitizer) {}
 
     // 默认配置参数
-    private _defaultConfig: any = {
+    private defaultConfig: any = {
         serverUrl: "",
         serverParam: {
             pageInfo: {
@@ -61,19 +70,6 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
             condition: {
                 where: null,
                 order: null
-                // where:[{
-                // conn: "and", // 默认为and状态,and | or
-                // paramCompare: "=", // 默认是=，[= | > | < | in | between | like]
-                // paramType: "string", // 默认为String，[string | int | date | datetime | list |
-                // double | float]
-                // paramKey: null, // 实体bean对应字段
-                // paramValue: null, // 字段对应值
-                // paramKeyAlias: null, // 列别名
-                // }],
-                // order:[{
-                // paramKey: null, // 实体bean对应字段
-                // paramValue: "asc" // 字段对应值 [asc | desc]
-                // }]
             }
         },
         columns: {
@@ -81,9 +77,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
                 enabled: true
             },
             batch: {
-                enabled: true,
-                checkAllName: null,
-                checkSingleName: null
+                enabled: true
             },
             index: {
                 enabled: true
@@ -91,24 +85,41 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
         }
     };
 
-    ngOnInit() {
+    private defaultItemsConfig: any = {
+        label: "",
+        colName: "",
+        visible: true,
+        order: true,
+        width: null,
+        cls: "text-center",
+        style: null,
+        ellipsis: false,
+        filterProp: {
+            enabled: true,
+            type: "string",
+            compare: "like",
+            value: null
+        },
+        render: null
+    };
 
-    }
+    ngOnInit() {}
 
     ngOnDestroy() {
-        this._tableData = null;
+        this.tableData = null;
+        this.getDataSubscription.unsubscribe();
     }
 
     /**
-     * 加载表格数据
+     * 创建表格
      */
-    private _initTable() {
-        this.__sort();
-        this.__filter();
-        this.postData(this._config.serverUrl, this._config.serverParam).subscribe(
+    creatTable(): void {
+        this.setSortVal();
+        this.setFilterVal();
+        this.getDataSubscription = this.getTableData().subscribe(
             (serverData) => {
                 if (serverData.code == 'ok') {
-                    this._tableData = <TableDataModel> serverData.result;
+                    this.tableData = <TableDataModel> serverData.result;
                     this.ready.emit();
                 }
             },
@@ -116,6 +127,14 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
                 alert(error);
             }
         )
+    }
+
+    /**
+     * 获取表格数据
+     * @returns {Observable<any>}
+     */
+    getTableData(): Observable<any> {
+        return this.postData(this.config.serverUrl, this.config.serverParam);
     }
 
     /**
@@ -140,7 +159,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param res Response
      * @returns {any|{}}
      */
-    private extractData(res: Response) {
+    private extractData(res: Response): any {
         let body = res.json();
         return body || {};
     }
@@ -150,7 +169,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param error 错误对象
      * @returns {ErrorObservable}
      */
-    private handleError(error: any) {
+    private handleError(error: any): Observable<any> {
         let errMsg = (error.message) ? error.message :
             error.status ? `${error.status} - ${error.statusText}` : 'Server error';
         return Observable.throw(errMsg);
@@ -161,7 +180,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param column
      * @private
      */
-    private _sort(column: any) {
+    sort(column: any): void {
         if (column.order) {
             if (column.order === 'asc') {
                 column.order = 'desc'
@@ -170,14 +189,17 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
             } else {
                 column.order = 'asc';
             }
-            this._initTable();
+            this.creatTable();
         }
     }
 
-    private __sort() {
+    /**
+     * 设置排序条件
+     */
+    setSortVal(): void {
         let orders: any = [];
-        for (let i = 0; i < this._config.columns.items.length; i++) {
-            let col = this._config.columns.items[i];
+        for (let i = 0; i < this.config.columns.items.length; i++) {
+            let col = this.config.columns.items[i];
             if (col.order === 'asc' || col.order === 'desc') {
                 orders.push({
                     paramKey: col.colName,
@@ -185,24 +207,28 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
                 });
             }
         }
-        this._config.serverParam.condition.order = orders;
+        this.config.serverParam.condition.order = orders;
     }
 
     /**
      * 过滤方法
-     * @param column
+     * @param e 事件
+     * @param column 列设置项
      * @private
      */
-    private _filter($event: any, column: any) {
-        let value = $event.target.value;
+    filter(e: any, column: any): void {
+        let value = e.target.value;
         column.filterProp.value = value.trim();
-        this._initTable();
+        this.creatTable();
     }
 
-    private __filter() {
+    /**
+     * 设置过滤条件
+     */
+    setFilterVal(): void {
         let filters: any = [];
-        for (let i = 0; i < this._config.columns.items.length; i++) {
-            let col = this._config.columns.items[i];
+        for (let i = 0; i < this.config.columns.items.length; i++) {
+            let col = this.config.columns.items[i];
             if (col.filterProp.enabled && (col.filterProp.value !== undefined)) {
                 if ((col.filterProp.value === null)) {
                     if (col.filterProp.compare === 'is') {
@@ -227,27 +253,27 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
                 }
             }
         }
-        this._config.serverParam.condition.where = filters;
+        this.config.serverParam.condition.where = filters;
     }
 
     /**
      * 上一页方法
      * @private
      */
-    private _prePage() {
-        this._config.serverParam.pageInfo.currentPageNum--;
-        this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (this._config.serverParam.pageInfo.currentPageNum - 1);
-        this._initTable();
+    prePage(): void {
+        this.config.serverParam.pageInfo.currentPageNum--;
+        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
+        this.creatTable();
     }
 
     /**
      * 下一页方法
      * @private
      */
-    private _nextPage() {
-        this._config.serverParam.pageInfo.currentPageNum++;
-        this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (this._config.serverParam.pageInfo.currentPageNum - 1);
-        this._initTable();
+    nextPage(): void {
+        this.config.serverParam.pageInfo.currentPageNum++;
+        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
+        this.creatTable();
     }
 
     /**
@@ -255,27 +281,12 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param num
      * @private
      */
-    private _toPage(num: number) {
-        if (this._config.serverParam.pageInfo.currentPageNum !== num && num !== -1) {
-            this._config.serverParam.pageInfo.currentPageNum = num;
-            this._config.serverParam.pageInfo.beginRecord = this._config.serverParam.pageInfo.pageSize * (num - 1);
-            this._initTable();
+    toPage(num: number): void {
+        if (this.config.serverParam.pageInfo.currentPageNum !== num && num !== -1) {
+            this.config.serverParam.pageInfo.currentPageNum = num;
+            this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (num - 1);
+            this.creatTable();
         }
-    }
-
-    /**
-     * 获取列样式方法
-     * @param column
-     * @returns {string}
-     * @private
-     */
-    private _getColumnStyle(column: any) {
-        let cls = [];
-        cls.push(column.cls);
-        if (column.order) {
-            cls.push('order');
-        }
-        return cls.join(' ');
     }
 
     /**
@@ -284,7 +295,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @returns {Array}
      * @private
      */
-    private _numberArray(n: number) {
+    numberArray(n: number) {
         let result = [];
         for (let i: number = 0; i < n; i++) {
             result.push(i + 1);
@@ -298,7 +309,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @returns {boolean}
      * @private
      */
-    private _isFunction(param: any) {
+    isFunction(param: any) {
         return typeof param == 'function';
     }
 
@@ -309,7 +320,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param sumPageNum
      * @returns {string}
      */
-    private _generateForText(index: number, currentPageNum: number, sumPageNum: number): string {
+    generateForText(index: number, currentPageNum: number, sumPageNum: number): string {
         if (index === 1 || index === sumPageNum || currentPageNum + 1 === index || currentPageNum - 1 === index || currentPageNum === index) {
             return index.toString();
         } else {
@@ -324,7 +335,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param sumPageNum
      * @returns {boolean}
      */
-    private _generateForButton(index: number, currentPageNum: number, sumPageNum: number): boolean {
+    generateForButton(index: number, currentPageNum: number, sumPageNum: number): boolean {
         if ((index - currentPageNum > 2 || currentPageNum - index > 2) && index != 1 && index != sumPageNum) {
             return false;
         } else {
@@ -338,19 +349,19 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param data
      * @private
      */
-    private _checkboxChangeEvent($event, data) {
+    checkboxChangeEvent($event, data) {
         data.selected = $event.target.checked;
         if (data.selected) {
             let allStatus = true;
-            for (let i = 0; i < this._tableData.pageInfo.items.length; i++) {
-                if (!this._tableData.pageInfo.items[i].selected) {
+            for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
+                if (!this.tableData.pageInfo.items[i].selected) {
                     allStatus = false;
                     break;
                 }
             }
-            this._batchAllCheckStatus = allStatus;
+            this.batchAllCheckStatus = allStatus;
         } else {
-            this._batchAllCheckStatus = false;
+            this.batchAllCheckStatus = false;
         }
     }
 
@@ -359,10 +370,10 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * @param $event
      * @private
      */
-    private _checkboxAllChangeEvent($event) {
+    checkboxAllChangeEvent($event) {
         let checked = $event.target.checked;
-        for (let i = 0; i < this._tableData.pageInfo.items.length; i++) {
-            this._tableData.pageInfo.items[i].selected = checked;
+        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
+            this.tableData.pageInfo.items[i].selected = checked;
         }
     }
 
@@ -370,7 +381,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      * 刷新列表数据
      */
     refresh(): void {
-        this._initTable();
+        this.creatTable();
     }
 
     /**
@@ -378,25 +389,15 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
      */
     getSelectedItems(): any[] {
         let result = [];
-        for (let i = 0; i < this._tableData.pageInfo.items.length; i++) {
-            if (this._tableData.pageInfo.items[i].selected) {
-                result.push(this._tableData.pageInfo.items[i]);
+        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
+            if (this.tableData.pageInfo.items[i].selected) {
+                result.push(this.tableData.pageInfo.items[i]);
             }
         }
         return result;
     }
 
-    /**
-     * 以下实现ControlValueAccessor接口的方法
-     * @param value
-     */
-    writeValue(value: any): void {
+    trackById(index: number, data: any): any {
+        return data.c_id;
     }
-
-    registerOnChange(fn: any): void {
-    }
-
-    registerOnTouched(fn: any): void {
-    }
-
 }
