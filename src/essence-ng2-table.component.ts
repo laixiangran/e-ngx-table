@@ -33,6 +33,7 @@ export class EssenceNg2TableComponent implements ControlValueAccessor, OnInit, O
     @Input()
     set option (config: any) {
         this._config = _.merge({}, this._defaultConfig, config);
+
         this._initTable();
     }
 
