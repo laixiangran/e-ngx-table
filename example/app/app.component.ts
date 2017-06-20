@@ -101,6 +101,8 @@ export class AppComponent {
 
     constructor() {}
 
-    ready() {}
+    ready() {
+        console.log('table ready!');
+    }
 
 }

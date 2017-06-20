@@ -5,11 +5,13 @@ import { NgModule } from "@angular/core";
 import { EssenceNg2TableComponent } from "./essence-ng2-table.component";
 import { CommonModule } from "@angular/common";
 import { HttpModule } from "@angular/http";
+import { ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
     imports: [
         CommonModule,
-        HttpModule
+        HttpModule,
+        ReactiveFormsModule
     ],
     declarations: [EssenceNg2TableComponent],
     exports: [EssenceNg2TableComponent]

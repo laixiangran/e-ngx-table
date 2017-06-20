@@ -4,13 +4,18 @@
 
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { TableDataModel } from "./model/tableDataModel";
+import { FormControl } from "@angular/forms";
 import { Http, Response, Headers, RequestOptions } from "@angular/http";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/catch";
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/switchMap";
 import * as _ from "lodash";
+
+import { TableDataModel } from "./model/tableDataModel";
 
 @Component({
     selector: 'essence-ng2-table',
@@ -21,6 +26,10 @@ import * as _ from "lodash";
 export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
     private getDataSubscription: Subscription;
+    private filterInput: FormControl = new FormControl;
+    private filterInputSubscription: Subscription;
+
+    currentColumn: any;
 
     // 控制列表全选复选框状态
     batchAllCheckStatus = false;
@@ -59,8 +68,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     @Output()
     private ready: EventEmitter<any> = new EventEmitter<any>(false);
-
-    constructor(private http: Http, public domSanitizer: DomSanitizer) {}
 
     // 默认配置参数
     private defaultConfig: any = {
@@ -109,11 +116,35 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         render: null
     };
 
-    ngOnInit() {}
+    constructor(private http: Http, public domSanitizer: DomSanitizer) {}
+
+    ngOnInit() {
+        // 订阅每列筛选输入框值变化事件
+        this.filterInputSubscription = this.filterInput.valueChanges
+            .debounceTime(500) // 延迟500ms
+            .distinctUntilChanged() // 输入值没变化，不再发请求
+            .switchMap((value: any) => { // 保证请求顺序
+                this.currentColumn.filterProp.value = value.trim();
+                this.setSortVal();
+                this.setFilterVal();
+                return this.getTableData();
+            })
+            .subscribe(
+                (serverData: any) => {
+                    if (serverData.code == 'ok') {
+                        this.tableData = <TableDataModel> serverData.result;
+                    }
+                },
+                (error: any) => {
+                    throw error;
+                }
+            );
+    }
 
     ngOnDestroy() {
         this.tableData = null;
-        this.getDataSubscription.unsubscribe();
+        this.getDataSubscription && this.getDataSubscription.unsubscribe();
+        this.filterInputSubscription && this.filterInputSubscription.unsubscribe();
     }
 
     /**
@@ -123,16 +154,16 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.setSortVal();
         this.setFilterVal();
         this.getDataSubscription = this.getTableData().subscribe(
-            (serverData) => {
+            (serverData: any) => {
                 if (serverData.code == 'ok') {
+                    !this.tableData && this.ready.emit();
                     this.tableData = <TableDataModel> serverData.result;
-                    this.ready.emit();
                 }
             },
-            (error) => {
-                alert(error);
+            (error: any) => {
+                throw error;
             }
-        )
+        );
     }
 
     /**
@@ -214,6 +245,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             }
         }
         this.config.serverParam.condition.order = orders;
+    }
+
+    setCurrentColumn(column: any) {
+        this.currentColumn = column;
     }
 
     /**
@@ -310,13 +345,21 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * 判断对象是否为方法（模板语法中不支持typeof）
+     * 判断是否为方法
      * @param param
      * @returns {boolean}
-     * @private
      */
-    isFunction(param: any) {
-        return typeof param == 'function';
+    isFunction(param: any): boolean {
+        return typeof param === 'function';
+    }
+
+    /**
+     * 判断是否为数组
+     * @param param
+     * @returns {boolean}
+     */
+    isArray(param: any): boolean {
+        return Array.isArray(param);
     }
 
     /**
