@@ -38,12 +38,15 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     @Input()
     set option(config: any) {
         this.config = _.merge({}, this.defaultConfig, config);
-        let items: any[] = this.config.columns.items.map((item: any) => {
-            return _.merge({}, this.defaultItemsConfig, item);
-        });
-        this.config.columns.items = items;
-        console.log(this.config.columns.items);
-        this.creatTable();
+        if (this.config.columns.items) {
+            let items: any[] = this.config.columns.items.map((item: any) => {
+                return _.merge({}, this.defaultItemsConfig, item);
+            });
+            this.config.columns.items = items;
+            this.creatTable();
+        } else {
+            throw `columns.items is undefined - 缺少数据列配置，请配置。`;
+        }
     }
 
     get option(): any {
@@ -85,6 +88,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         }
     };
 
+    /**
+     * 数列配置
+     */
     private defaultItemsConfig: any = {
         label: "",
         colName: "",

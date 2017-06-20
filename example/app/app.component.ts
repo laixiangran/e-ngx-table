@@ -29,9 +29,7 @@ export class AppComponent {
             }, {
                 label: "工程编号",
                 colName: "c_no",
-                render: (obj) => {
-                    return `<span style="color:red;">${obj.c_no}</span>`;
-                }
+                style: {color: 'red', 'font-weight': 'bold'},
             }, {
                 label: "工程量",
                 colName: "c_build_content"

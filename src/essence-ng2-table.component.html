@@ -1,4 +1,4 @@
-<table class="table table-bordered essence-table">
+<table class="table table-bordered ui-essence-table">
 	<thead>
 		<tr class="bg-info">
 			<td *ngIf="config.columns.batch.enabled" class="text-center">
@@ -6,8 +6,11 @@
 			</td>
 			<th *ngIf="config.columns.index.enabled" class="text-nowrap text-center">序号</th>
 			<ng-container *ngFor="let column of config.columns.items;">
-				<th *ngIf="column.visible" class="text-nowrap" [class.order]="column.order" [ngClass]="column.cls" (click)="sort(column)" [attr.width]="column.width">
-					{{column.label}} <i class="fa hidden-print" *ngIf="column.order" [ngClass]="{'fa-sort text-muted': column.order === 'sort' || column.order === true, 'fa-sort-asc': column.order === 'asc', 'fa-sort-desc': column.order === 'desc'}"></i>
+				<th *ngIf="column.visible" class="text-nowrap text-center" [class.order]="column.order" (click)="sort(column)" [attr.width]="column.width">
+					<span>
+						{{column.label}}
+					</span>
+					<i class="fa hidden-print" *ngIf="column.order" [ngClass]="{'fa-sort text-muted': column.order === 'sort' || column.order === true, 'fa-sort-asc': column.order === 'asc', 'fa-sort-desc': column.order === 'desc'}"></i>
 				</th>
 			</ng-container>
 		</tr>
@@ -22,7 +25,7 @@
 				</td>
 				<td *ngIf="config.columns.index.enabled" class="text-center">{{dataIndex + tableData.pageInfo.beginRecord}}</td>
 				<ng-container *ngFor="let column of config.columns.items;">
-					<td *ngIf="column.visible" [ngClass]="column.cls">
+					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style">
 						<div *ngIf="column.colName && isFunction(column.render) && column.render(data)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data))"></div>
 						<div *ngIf="column.colName && (!isFunction(column.render) || !column.render(data))" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])"></div>
 						<div *ngIf="!column.colName">
@@ -56,10 +59,10 @@
 	</tfoot>
 </table>
 <div class="row" *ngIf="tableData">
-	<div class="col-sm-6">
+	<div class="col-sm-6 ui-essence-table-pageInfo">
 		显示 {{tableData.pageInfo.beginRecord}} 到 {{tableData.pageInfo.endRecord}} 条，共 {{tableData.pageInfo.totalRecords}} 条数据
 	</div>
-	<div class="col-sm-6 hidden-print">
+	<div class="col-sm-6 hidden-print ui-essence-table-pageBtn">
 		<div class="btn-toolbar pull-right" role="toolbar" *ngIf="tableData.pageInfo.totalRecords > 0">
 			<div class="btn-group">
 				<button type="button" class="btn btn-sm btn-default" (click)="prePage()" [disabled]="tableData.pageInfo.currentPageNum == 1"><i class="fa fa-chevron-left"></i></button>
