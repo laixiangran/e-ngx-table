@@ -50,43 +50,13 @@ essence-ng2-table is a Table component for Angular.
 5. Use in Component
 
     ```typescript
-    @ViewChild('eTable') eTable: EssenceNg2TableComponent;
-
     option: any = {
         serverUrl: 'http://192.168.0.88/zhijian/auth/project/selectByEssenceTablePage.do',
         columns: {
+            primaryKey: "c_id",
             items: [{
-                label: "系统编号",
-                colName: "c_id",
-                visible: false,
-                order: false,
-                width: null,
-                cls: "text-center",
-                style: null,
-                ellipsis: false,
-                filterProp: {
-                    enabled: true,
-                    type: "string",// string,select,date,datetime,num,combobox
-                    compare: "like" // like,=,>,<,between
-                },
-                render: (obj) => {
-                }
-            }, {
                 label: "工程名称",
-                colName: "c_name",
-                visible: true,
-                order: true,
-                width: null,
-                cls: "text-center",
-                style: null,
-                ellipsis: false,
-                filterProp: {
-                    enabled: true,
-                    type: "string",// string,select,date,datetime,num,combobox
-                    compare: "like" // like,=,>,<,between
-                },
-                render: (obj) => {
-                }
+                colName: "c_name"
             }]
         }
     };
@@ -94,17 +64,13 @@ essence-ng2-table is a Table component for Angular.
     ready() {
         console.log('essence table ready.');
     }
-
-    refresh() {
-        this.eTable.refresh();
-    }
     ```
 
 ## API
 
 ### Inputs
 
-- `option` (`?Object`) - 表格配置项，查看目录下的`essence-ng2-table.doc`
+- `option` (`?Object`) - 表格配置项
 
 ### Outputs (event)
 
