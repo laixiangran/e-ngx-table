@@ -63,7 +63,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * 表格加载完成事件
+     * 表格初始化完成事件
      * @type {EventEmitter<any>}
      */
     @Output()
@@ -75,7 +75,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         serverParam: {
             pageInfo: {
                 currentPageNum: 1,
-                pageSize: 15
+                pageSize: 10
             },
             condition: {
                 where: null,
@@ -83,15 +83,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             }
         },
         columns: {
-            filter: {
-                enabled: true
-            },
-            batch: {
-                enabled: true
-            },
-            index: {
-                enabled: true
-            }
+            primaryKey: "c_id",
+            filter: true,
+            batch: true,
+            index: true
         }
     };
 
@@ -156,7 +151,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.getDataSubscription = this.getTableData().subscribe(
             (serverData: any) => {
                 if (serverData.code == 'ok') {
-                    !this.tableData && this.ready.emit();
+                    !this.tableData && this.ready.emit(); // ready事件发送一次
                     this.tableData = <TableDataModel> serverData.result;
                 }
             },
@@ -270,27 +265,31 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         let filters: any = [];
         for (let i = 0; i < this.config.columns.items.length; i++) {
             let col = this.config.columns.items[i];
-            if (col.filterProp.enabled && (col.filterProp.value !== undefined)) {
-                if ((col.filterProp.value === null)) {
-                    if (col.filterProp.compare === 'is') {
-                        filters.push({
-                            conn: 'and',
-                            paramCompare: col.filterProp.compare,
-                            paramType: col.filterProp.type,
-                            paramKey: col.colName,
-                            paramKeyAlias: col.colAlias,
-                            paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                        });
+            if (col.filterProp && col.filterProp.enabled) {
+                if (col.filterProp.type != 'select') {
+                    if (col.filterProp.value !== undefined) {
+                        if (col.filterProp.value === null) {
+                            if (col.filterProp.compare === 'is') {
+                                filters.push({
+                                    conn: 'and',
+                                    paramCompare: col.filterProp.compare,
+                                    paramType: col.filterProp.type,
+                                    paramKey: col.colName,
+                                    paramKeyAlias: col.colAlias,
+                                    paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
+                                });
+                            }
+                        } else if ((col.filterProp.value || col.filterProp.value == 0) && col.filterProp.value !== '') {
+                            filters.push({
+                                conn: 'and',
+                                paramCompare: col.filterProp.compare,
+                                paramType: col.filterProp.type,
+                                paramKey: col.colName,
+                                paramKeyAlias: col.colAlias,
+                                paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
+                            });
+                        }
                     }
-                } else if ((col.filterProp.value || col.filterProp.value == 0) && col.filterProp.value !== '') {
-                    filters.push({
-                        conn: 'and',
-                        paramCompare: col.filterProp.compare,
-                        paramType: col.filterProp.type,
-                        paramKey: col.colName,
-                        paramKeyAlias: col.colAlias,
-                        paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                    });
                 }
             }
         }
@@ -446,7 +445,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         return result;
     }
 
-    trackById(index: number, data: any): any {
+    trackById(index: any, data: any): any {
         return data.c_id;
     }
 }

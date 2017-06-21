@@ -10,20 +10,8 @@ export class AppComponent {
     option: any = {
         serverUrl: 'http://192.168.0.88/zhijian/auth/project/selectByEssenceTablePage.do',
         columns: {
+            primaryKey: "c_id",
             items: [{
-                label: "系统编号",
-                colName: "c_id",
-                visible: false
-            }, {
-                colName: "n_register_check_status",
-                visible: false,
-                filterProp: {
-                    enabled: true,
-                    type: "string",
-                    compare: '=',
-                    value: 1
-                }
-            }, {
                 label: "工程名称",
                 colName: "c_name"
             }, {
@@ -42,10 +30,11 @@ export class AppComponent {
             }, {
                 label: "注册状态",
                 colName: "n_register_check_status",
+                width: 100,
                 filterProp: {
                     enabled: true,
                     type: "select",// string,select,date,datetime,num,combobox
-                    data: [{
+                    value: [{
                         text: '待审核',
                         value: 2
                     }, {
@@ -60,10 +49,11 @@ export class AppComponent {
             }, {
                 label: "划分状态",
                 colName: "n_divide_check_status",
+                width: 100,
                 filterProp: {
                     enabled: true,
                     type: "select",// string,select,date,datetime,num,combobox
-                    data: [{
+                    value: [{
                         text: '待划分',
                         value: 0
                     }, {

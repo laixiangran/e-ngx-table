@@ -2,10 +2,10 @@
 	<table class="table table-bordered ui-essence-table">
 		<thead>
 			<tr>
-				<td *ngIf="config.columns.batch.enabled" class="text-center">
+				<td *ngIf="config.columns.batch" class="text-center">
 					<input type="checkbox" [checked]="batchAllCheckStatus" (change)="checkboxAllChangeEvent($event)">
 				</td>
-				<th *ngIf="config.columns.index.enabled" class="text-nowrap text-center">序号</th>
+				<th *ngIf="config.columns.index" class="text-nowrap text-center">序号</th>
 				<ng-container *ngFor="let column of config.columns.items;">
 					<th *ngIf="column.visible" class="text-nowrap text-center" [class.order]="column.order" (click)="sort(column)" [attr.width]="column.width">
 						<span>
@@ -20,14 +20,14 @@
 			<tr *ngFor="let data of tableData.pageInfo.items; trackBy: trackById; let dataIndex = index;">
 
 				<!--批量复选框-->
-				<td *ngIf="config.columns.batch.enabled" class="text-center">
+				<td *ngIf="config.columns.batch" class="text-center">
 					<input type="checkbox"
 					       [checked]="data.selected"
 					       (change)="checkboxChangeEvent($event,data)">
 				</td>
 
 				<!--序号-->
-				<td *ngIf="config.columns.index.enabled" class="text-center">{{dataIndex + tableData.pageInfo.beginRecord}}</td>
+				<td *ngIf="config.columns.index" class="text-center">{{dataIndex + tableData.pageInfo.beginRecord}}</td>
 
 				<!--单元格内容-->
 				<ng-container *ngFor="let column of config.columns.items;">
@@ -49,18 +49,17 @@
 				</td>
 			</tr>
 		</tbody>
-		<tfoot *ngIf="tableData" class="hidden-print">
+		<tfoot *ngIf="config.columns.filter && tableData" class="hidden-print">
 			<tr>
-				<td *ngIf="config.columns.batch.enabled" class="text-center">
-				</td>
-				<td *ngIf="config.columns.index.enabled"></td>
+				<td *ngIf="config.columns.batch" class="text-center"></td>
+				<td *ngIf="config.columns.index"></td>
 				<ng-container *ngFor="let column of config.columns.items;let columnIndex=index;">
 					<td *ngIf="column.visible">
 						<div *ngIf="column.filterProp.enabled">
 							<input type="text" class="form-control" (keyup)="setCurrentColumn(column)" *ngIf="column.filterProp.type === 'string'" [placeholder]="column.label" [formControl]="filterInput">
 							<select class="form-control" (change)="filter($event, column)" *ngIf="column.filterProp.type === 'select'">
 								<option value="">全部</option>
-								<option *ngFor="let s of column.filterProp.data" [value]="s.value">{{s.text}}</option>
+								<option *ngFor="let s of column.filterProp.value" [value]="s.value">{{s.text}}</option>
 							</select>
 							<input type="date" class="form-control" (change)="filter($event, column)" *ngIf="column.filterProp.type === 'date'">
 						</div>
