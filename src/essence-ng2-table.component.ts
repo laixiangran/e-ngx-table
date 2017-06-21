@@ -302,7 +302,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     prePage(): void {
         this.config.serverParam.pageInfo.currentPageNum--;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
         this.creatTable();
     }
 
@@ -312,7 +311,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     nextPage(): void {
         this.config.serverParam.pageInfo.currentPageNum++;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
         this.creatTable();
     }
 
