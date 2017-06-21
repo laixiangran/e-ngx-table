@@ -281,9 +281,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @private
      */
     prePage(): void {
-        this.config.serverParam.pageInfo.currentPageNum--;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
-        this.creatTable();
+        this.config.serverParam.currentPage--;
+        this.refresh();
     }
 
     /**
@@ -292,8 +291,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     nextPage(): void {
         this.config.serverParam.currentPage++;
-        // this.config.serverParam.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
-        // this.creatTable();
         this.refresh();
     }
 
@@ -382,8 +379,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         data.selected = $event.target.checked;
         if (data.selected) {
             let allStatus = true;
-            for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-                if (!this.tableData.pageInfo.items[i].selected) {
+            for (let i = 0; i < this.tableData.items.length; i++) {
+                if (!this.tableData.items[i].selected) {
                     allStatus = false;
                     break;
                 }
@@ -401,8 +398,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     checkboxAllChangeEvent($event) {
         let checked = $event.target.checked;
-        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-            this.tableData.pageInfo.items[i].selected = checked;
+        for (let i = 0; i < this.tableData.items.length; i++) {
+            this.tableData.items[i].selected = checked;
         }
     }
 
@@ -427,9 +424,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     getSelectedItems(): any[] {
         let result = [];
-        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-            if (this.tableData.pageInfo.items[i].selected) {
-                result.push(this.tableData.pageInfo.items[i]);
+        for (let i = 0; i < this.tableData.items.length; i++) {
+            if (this.tableData.items[i].selected) {
+                result.push(this.tableData.items[i]);
             }
         }
         return result;
