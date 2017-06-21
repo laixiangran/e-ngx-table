@@ -73,14 +73,12 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     private defaultConfig: any = {
         serverUrl: "",
         serverParam: {
-            pageInfo: {
-                currentPageNum: 1,
-                pageSize: 10
-            },
-            condition: {
-                where: null,
-                order: null
-            }
+            currentPage: 1,
+            pageSize: 10,
+            conditions: [],
+            orders: [],
+            search: "",
+            fileds: []
         },
         columns: {
             primaryKey: "c_id",
@@ -232,14 +230,14 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         let orders: any = [];
         for (let i = 0; i < this.config.columns.items.length; i++) {
             let col = this.config.columns.items[i];
-            if (col.order === 'asc' || col.order === 'desc') {
+            if (col.order === 'ASC' || col.order === 'DESC') {
                 orders.push({
-                    paramKey: col.colName,
-                    paramValue: col.order
+                    fieldName: col.colName,
+                    operator: col.order
                 });
             }
         }
-        this.config.serverParam.condition.order = orders;
+        this.config.serverParam.orders = orders;
     }
 
     setCurrentColumn(column: any) {
@@ -266,34 +264,16 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.config.columns.items.length; i++) {
             let col = this.config.columns.items[i];
             if (col.filterProp && col.filterProp.enabled) {
-                if (col.filterProp.type != 'select') {
-                    if (col.filterProp.value !== undefined) {
-                        if (col.filterProp.value === null) {
-                            if (col.filterProp.compare === 'is') {
-                                filters.push({
-                                    conn: 'and',
-                                    paramCompare: col.filterProp.compare,
-                                    paramType: col.filterProp.type,
-                                    paramKey: col.colName,
-                                    paramKeyAlias: col.colAlias,
-                                    paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                                });
-                            }
-                        } else if ((col.filterProp.value || col.filterProp.value == 0) && col.filterProp.value !== '') {
-                            filters.push({
-                                conn: 'and',
-                                paramCompare: col.filterProp.compare,
-                                paramType: col.filterProp.type,
-                                paramKey: col.colName,
-                                paramKeyAlias: col.colAlias,
-                                paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                            });
-                        }
-                    }
+                if (col.filterProp.type != 'select' && col.filterProp.value) {
+                    filters.push({
+                        fieldName: col.colName,
+                        value: col.filterProp.value,
+                        operator: col.filterProp.compare
+                    });
                 }
             }
         }
-        this.config.serverParam.condition.where = filters;
+        this.config.serverParam.conditions = filters;
     }
 
     /**
@@ -311,9 +291,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @private
      */
     nextPage(): void {
-        this.config.serverParam.pageInfo.currentPageNum++;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
-        this.creatTable();
+        this.config.serverParam.currentPage++;
+        // this.config.serverParam.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
+        // this.creatTable();
+        this.refresh();
     }
 
     /**
@@ -429,7 +410,16 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * 刷新列表数据
      */
     refresh(): void {
-        this.creatTable();
+        this.getDataSubscription = this.getTableData().subscribe(
+            (serverData: any) => {
+                if (serverData.code == 'ok') {
+                    this.tableData = <TableDataModel> serverData.result;
+                }
+            },
+            (error: any) => {
+                throw error;
+            }
+        );
     }
 
     /**
@@ -446,6 +436,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     trackById(index: any, data: any): any {
-        return data.c_id;
+        return data.id;
     }
 }
