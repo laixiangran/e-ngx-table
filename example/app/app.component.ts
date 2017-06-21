@@ -8,9 +8,10 @@ import { Component } from '@angular/core';
 export class AppComponent {
 
     option: any = {
-        serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage',
+        serverParam: {
+            serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
+        },
         columns: {
-            primaryKey: "id",
             items: [{
                 label: "工程名称",
                 colName: "name"
@@ -20,10 +21,26 @@ export class AppComponent {
                 style: {color: 'red', 'font-weight': 'bold'},
             }, {
                 label: "工程地址",
-                colName: "address"
+                colName: "address",
+                filterProp: {
+                    type: 'select',
+                    value: [
+                        {
+                            text: '8888',
+                            value: '888'
+                        },
+                        {
+                            text: '北京市',
+                            value: '北京市'
+                        }
+                    ]
+                }
             }, {
                 label: "创建时间",
-                colName: "createtime"
+                colName: "createtime",
+                filterProp: {
+                    type: 'date'
+                }
             }, {
                 label: "操作",
                 filterProp: {

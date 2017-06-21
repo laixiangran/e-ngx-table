@@ -11,7 +11,7 @@
 						<span>
 							{{column.label}}
 						</span>
-						<i class="fa hidden-print" *ngIf="column.order" [ngClass]="{'fa-sort text-muted': column.order === 'sort' || column.order === true, 'fa-sort-asc': column.order === 'asc', 'fa-sort-desc': column.order === 'desc'}"></i>
+						<i class="fa hidden-print" *ngIf="column.order" [ngClass]="{'fa-sort text-muted': column.order === 'NORMAL' || column.operator === 'NORMAL', 'fa-sort-asc': column.operator === 'ASC', 'fa-sort-desc': column.operator === 'DESC'}"></i>
 					</th>
 				</ng-container>
 			</tr>
@@ -53,15 +53,15 @@
 			<tr>
 				<td *ngIf="config.columns.batch" class="text-center"></td>
 				<td *ngIf="config.columns.index"></td>
-				<ng-container *ngFor="let column of config.columns.items;let columnIndex=index;">
+				<ng-container *ngFor="let column of config.columns.items;">
 					<td *ngIf="column.visible">
 						<div *ngIf="column.filterProp.enabled">
 							<input type="text" class="form-control" (keyup)="setCurrentColumn(column)" *ngIf="column.filterProp.type === 'string'" [placeholder]="column.label" [formControl]="filterInput">
-							<select class="form-control" (change)="filter($event, column)" *ngIf="column.filterProp.type === 'select'">
+							<select class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'select'">
 								<option value="">全部</option>
-								<option *ngFor="let s of column.filterProp.value" [value]="s.value">{{s.text}}</option>
+								<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>
 							</select>
-							<input type="date" class="form-control" (change)="filter($event, column)" *ngIf="column.filterProp.type === 'date'">
+							<input type="date" class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'date'">
 						</div>
 					</td>
 				</ng-container>
