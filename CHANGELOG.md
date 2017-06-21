@@ -16,12 +16,10 @@
 
 兼容Angular4.0
 
+# 1.0.0 (2017-06-01)
+
+无
+
 # 1.0.0 (2017-05-17)
 
-## Bug Fixes
-
-## Code Refactoring
-
-## Features
-
-## BREAKING CHANGES
+初始版本
