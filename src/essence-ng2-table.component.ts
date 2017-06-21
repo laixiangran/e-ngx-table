@@ -71,22 +71,20 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
     // 默认配置参数
     private defaultConfig: any = {
-        serverUrl: "",
         serverParam: {
-            pageInfo: {
-                currentPageNum: 1,
-                pageSize: 10
-            },
-            condition: {
-                where: null,
-                order: null
-            }
+            serverUrl: "", // 服务地址
+            currentPage: 1, // 当前页
+            pageSize: 5, // 每页显示页数
+            conditions: [], // 查询条件
+            orders: [], // 排序条件
+            search: "", // 全局搜索值
+            fileds: [] // 全局搜索对应字段
         },
         columns: {
-            primaryKey: "c_id",
-            filter: true,
-            batch: true,
-            index: true
+            primaryKey: "id", // 主键
+            filter: true, // 全列过滤
+            batch: true, // 批量选择
+            index: true, // 序号
         }
     };
 
@@ -97,7 +95,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         label: "",
         colName: "",
         visible: true,
-        order: true,
+        order: 'NORMAL',
+        search: true,
         width: null,
         cls: "text-center",
         style: null,
@@ -105,7 +104,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         filterProp: {
             enabled: true,
             type: "string",
-            compare: "like",
+            compare: "LIKE",
             value: null
         },
         render: null
@@ -118,17 +117,12 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.filterInputSubscription = this.filterInput.valueChanges
             .debounceTime(500) // 延迟500ms
             .distinctUntilChanged() // 输入值没变化，不再发请求
-            .switchMap((value: any) => { // 保证请求顺序
-                this.currentColumn.filterProp.value = value.trim();
-                this.setSortVal();
-                this.setFilterVal();
-                return this.getTableData();
-            })
+            // .switchMap((value: any) => { // 保证请求顺序
+            //     return this.getTableData();
+            // })
             .subscribe(
-                (serverData: any) => {
-                    if (serverData.code == 'ok') {
-                        this.tableData = <TableDataModel> serverData.result;
-                    }
+                (value: any) => {
+                    this.filter(value, this.currentColumn);
                 },
                 (error: any) => {
                     throw error;
@@ -146,8 +140,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * 创建表格
      */
     creatTable(): void {
-        this.setSortVal();
-        this.setFilterVal();
+        this.setServerParam();
         this.getDataSubscription = this.getTableData().subscribe(
             (serverData: any) => {
                 if (serverData.code == 'ok') {
@@ -166,7 +159,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @returns {Observable<any>}
      */
     getTableData(): Observable<any> {
-        return this.postData(this.config.serverUrl, this.config.serverParam);
+        let serverParam: any = JSON.parse(JSON.stringify(this.config.serverParam));
+        delete serverParam.serverUrl;
+        return this.postData(this.config.serverParam.serverUrl, serverParam);
     }
 
     /**
@@ -208,92 +203,123 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * 设置查询参数
+     */
+    setServerParam() {
+        this.config.columns.items.forEach((col: any) => {
+            this.setOrders(col, true);
+            if (col.filterProp && col.filterProp.enabled) {
+                if (col.filterProp.type != 'select' && col.filterProp.value) {
+                    this.config.serverParam.conditions.push({
+                        fieldName: col.colName,
+                        value: col.filterProp.value,
+                        operator: col.filterProp.compare
+                    });
+                }
+            }
+            if (col.search) {
+                this.config.serverParam.fileds.push(col.colName);
+            }
+        });
+    }
+
+    /**
+     * 设置当前列对象
+     * @param column
+     */
+    setCurrentColumn(column: any) {
+        this.currentColumn = column;
+    }
+
+    /**
+     * 设置排序条件
+     * @param column 列对象
+     * @param isFirst 是否第一次设置
+     */
+    setOrders(column: any, isFirst: boolean = false): void {
+        let orders: any[] = this.config.serverParam.orders;
+        if (isFirst) {
+            column.operator = column.order;
+            if (column.order === 'ASC' || column.order === 'DESC') {
+                orders.push({
+                    fieldName: column.colName,
+                    operator: column.operator
+                });
+            }
+        } else {
+            let existIndex: number = 0;
+            let isExist: boolean = orders.some((order: any, index: number) => {
+                if (order.fieldName === column.colName) {
+                    existIndex = index;
+                }
+                return order.fieldName === column.colName;
+            });
+            if (isExist) {
+                if (column.operator == 'ASC') {
+                    column.operator = 'DESC';
+                    orders[existIndex].operator = column.operator;
+                } else if (column.operator == 'DESC') {
+                    column.operator = 'NORMAL';
+                    orders.splice(existIndex, 1);
+                }
+            } else {
+                column.operator = 'ASC';
+                orders.push({
+                    fieldName: column.colName,
+                    operator: column.operator
+                });
+            }
+        }
+    }
+
+    /**
      * 排序方法
      * @param column
      * @private
      */
     sort(column: any): void {
         if (column.order) {
-            if (column.order === 'asc') {
-                column.order = 'desc'
-            } else if (column.order === 'desc') {
-                column.order = 'sort';
-            } else {
-                column.order = 'asc';
-            }
-            this.creatTable();
+            this.setOrders(column);
+            this.refresh();
         }
     }
 
-    /**
-     * 设置排序条件
-     */
-    setSortVal(): void {
-        let orders: any = [];
-        for (let i = 0; i < this.config.columns.items.length; i++) {
-            let col = this.config.columns.items[i];
-            if (col.order === 'asc' || col.order === 'desc') {
-                orders.push({
-                    paramKey: col.colName,
-                    paramValue: col.order
-                });
+    setFilter(value: any, column: any): void {
+        let conditions: any[] = this.config.serverParam.conditions,
+            existIndex: number = 0;
+        let isExist: boolean = conditions.some((condition: any, index: number) => {
+            if (condition.fieldName === column.colName) {
+                existIndex = index;
             }
+            return condition.fieldName === column.colName;
+        });
+        if (isExist) {
+            conditions[existIndex].value = value.trim();
+        } else {
+            conditions.push({
+                fieldName: column.colName,
+                value: value.trim(),
+                operator: column.filterProp.compare
+            });
         }
-        this.config.serverParam.condition.order = orders;
-    }
-
-    setCurrentColumn(column: any) {
-        this.currentColumn = column;
     }
 
     /**
      * 过滤方法
-     * @param e 事件
+     * @param value 筛选的值
      * @param column 列设置项
      * @private
      */
-    filter(e: any, column: any): void {
-        let value = e.target.value;
-        column.filterProp.value = value.trim();
-        this.creatTable();
+    filter(value: any, column: any): void {
+        this.setFilter(value, column);
+        this.refresh();
     }
 
     /**
-     * 设置过滤条件
+     * 全局搜索
      */
-    setFilterVal(): void {
-        let filters: any = [];
-        for (let i = 0; i < this.config.columns.items.length; i++) {
-            let col = this.config.columns.items[i];
-            if (col.filterProp && col.filterProp.enabled) {
-                if (col.filterProp.type != 'select') {
-                    if (col.filterProp.value !== undefined) {
-                        if (col.filterProp.value === null) {
-                            if (col.filterProp.compare === 'is') {
-                                filters.push({
-                                    conn: 'and',
-                                    paramCompare: col.filterProp.compare,
-                                    paramType: col.filterProp.type,
-                                    paramKey: col.colName,
-                                    paramKeyAlias: col.colAlias,
-                                    paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                                });
-                            }
-                        } else if ((col.filterProp.value || col.filterProp.value == 0) && col.filterProp.value !== '') {
-                            filters.push({
-                                conn: 'and',
-                                paramCompare: col.filterProp.compare,
-                                paramType: col.filterProp.type,
-                                paramKey: col.colName,
-                                paramKeyAlias: col.colAlias,
-                                paramValue: (col.filterProp.compare === 'like' ? '%' + col.filterProp.value + '%' : col.filterProp.value)
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        this.config.serverParam.condition.where = filters;
+    search(): void {
+
     }
 
     /**
@@ -301,9 +327,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @private
      */
     prePage(): void {
-        this.config.serverParam.pageInfo.currentPageNum--;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
-        this.creatTable();
+        this.config.serverParam.currentPage--;
+        this.refresh();
     }
 
     /**
@@ -311,9 +336,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @private
      */
     nextPage(): void {
-        this.config.serverParam.pageInfo.currentPageNum++;
-        this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (this.config.serverParam.pageInfo.currentPageNum - 1);
-        this.creatTable();
+        this.config.serverParam.currentPage++;
+        this.refresh();
     }
 
     /**
@@ -401,8 +425,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         data.selected = $event.target.checked;
         if (data.selected) {
             let allStatus = true;
-            for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-                if (!this.tableData.pageInfo.items[i].selected) {
+            for (let i = 0; i < this.tableData.items.length; i++) {
+                if (!this.tableData.items[i].selected) {
                     allStatus = false;
                     break;
                 }
@@ -420,8 +444,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     checkboxAllChangeEvent($event) {
         let checked = $event.target.checked;
-        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-            this.tableData.pageInfo.items[i].selected = checked;
+        for (let i = 0; i < this.tableData.items.length; i++) {
+            this.tableData.items[i].selected = checked;
         }
     }
 
@@ -429,7 +453,16 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * 刷新列表数据
      */
     refresh(): void {
-        this.creatTable();
+        this.getDataSubscription = this.getTableData().subscribe(
+            (serverData: any) => {
+                if (serverData.code == 'ok') {
+                    this.tableData = <TableDataModel> serverData.result;
+                }
+            },
+            (error: any) => {
+                throw error;
+            }
+        );
     }
 
     /**
@@ -437,15 +470,15 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     getSelectedItems(): any[] {
         let result = [];
-        for (let i = 0; i < this.tableData.pageInfo.items.length; i++) {
-            if (this.tableData.pageInfo.items[i].selected) {
-                result.push(this.tableData.pageInfo.items[i]);
+        for (let i = 0; i < this.tableData.items.length; i++) {
+            if (this.tableData.items[i].selected) {
+                result.push(this.tableData.items[i]);
             }
         }
         return result;
     }
 
     trackById(index: any, data: any): any {
-        return data.c_id;
+        return data.id;
     }
 }
