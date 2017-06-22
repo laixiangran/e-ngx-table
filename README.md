@@ -29,7 +29,15 @@ essence-ng2-table is a Table component for Angular.
     ```json
     "styles": [
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
-        "../node_modules/font-awesome/css/font-awesome.min.css"
+        "../node_modules/font-awesome/css/font-awesome.min.css",
+        "../node_modules/essence-ng2-datetimepicker/dist/assets/css/bootstrap-datetimepicker.min.css"
+    ],
+    "scripts": [
+        "../node_modules/jquery/dist/jquery.min.js",
+        "../node_modules/moment/min/moment.min.js",
+        "../node_modules/moment/min/moment-with-locales.min.js",
+        "../node_modules/essence-ng2-datetimepicker/dist/assets/js/bootstrap-datetimepicker.min.js",
+        "../node_modules/bootstrap/dist/js/bootstrap.min.js"
     ]
     ```
 
@@ -94,7 +102,7 @@ essence-ng2-table is a Table component for Angular.
                 search: false,
                 filterProp: {
                     type: 'date',
-                    compare: 'eq'
+                    operator: 'eq'
                 }
             }, {
                 label: "操作",
@@ -170,10 +178,12 @@ columns: {
         filterProp: { // 过滤条件
            enabled: true, // 是否启用
            type: "string", // 字段数据类型，可取值：string, date, select
-           compare: "like", // 操作符号，可取值：like, eq
+           operator: "like", // 操作符号，可取值：like, eq
            value: null // 筛选的值
         },
-        render: null // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值。如果是数组，就显示按钮{text, cls, event}
+        // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。
+        // 如果是对象数组，就显示按钮，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件}
+        render: null
     }
 }
 ```

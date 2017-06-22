@@ -8,13 +8,15 @@ import { CommonModule } from "@angular/common";
 import { HttpModule } from "@angular/http";
 import { ReactiveFormsModule } from "@angular/forms";
 import { EssenceNg2PaginationModule } from "essence-ng2-pagination";
+import { EssenceNg2DatetimepickerModule } from "essence-ng2-datetimepicker";
 
 @NgModule({
     imports: [
         CommonModule,
         HttpModule,
         ReactiveFormsModule,
-        EssenceNg2PaginationModule
+        EssenceNg2PaginationModule,
+        EssenceNg2DatetimepickerModule
     ],
     declarations: [EssenceNg2TableComponent],
     exports: [EssenceNg2TableComponent]

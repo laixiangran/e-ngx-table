@@ -1,6 +1,6 @@
 {
   "name": "essence-ng2-table",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "essence-ng2-table is an Angular component, It is a Multi-function Table component for Angular.",
   "keywords": [
     "angular2",
@@ -24,10 +24,7 @@
   },
   "scripts": {
     "release": "gulp prepublish && ngc && npm publish",
-    "start": "npm run jit",
-    "jit": "ng serve -o",
-    "aot": "ng serve -o --aot",
-    "build": "npm run build-test",
+    "start": "ng serve -o",
     "build-test": "ng build --prod --env=test --aot",
     "build-prod": "ng build --prod --env=prod --aot"
   },
@@ -36,6 +33,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.64",
     "bootstrap": "^3.3.7",
+    "essence-ng2-datetimepicker": "^1.1.0",
     "essence-ng2-pagination": "^1.0.4",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.4"

@@ -83,7 +83,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         serverParam: {
             serverUrl: "", // 服务地址
             currentPage: 1, // 当前页
-            pageSize: 5, // 每页显示页数
+            pageSize: 10, // 每页显示页数
             conditions: [], // 查询条件
             orders: [], // 排序条件
             search: "", // 全局搜索值
@@ -117,7 +117,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         filterProp: { // 过滤条件
             enabled: true, // 是否启用
             type: "string", // 字段数据类型，可取值：string, date, select
-            compare: "like", // 操作符号，可取值：like, eq
+            operator: "like", // 操作符号，可取值：like, eq
             value: null // 筛选的值
         },
         render: null // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
@@ -212,7 +212,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
                     this.config.serverParam.conditions.push({
                         fieldName: col.colName,
                         value: col.filterProp.value,
-                        operator: col.filterProp.compare.toUpperCase()
+                        operator: col.filterProp.operator.toUpperCase()
                     });
                 }
             }
@@ -298,7 +298,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             conditions.push({
                 fieldName: column.colName,
                 value: value.trim(),
-                operator: column.filterProp.compare.toUpperCase()
+                operator: column.filterProp.operator.toUpperCase()
             });
         }
     }

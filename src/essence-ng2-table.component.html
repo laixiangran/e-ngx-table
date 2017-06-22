@@ -1,4 +1,4 @@
-<div class="ui-essence-table-wrapper">
+<div *ngIf="tableData" class="ui-essence-table-wrapper">
 	<div class="pull-right hidden-print search-wrapper">
 		<form class="form-inline">
 			<div class="input-group">
@@ -13,7 +13,7 @@
 			</div>
 		</form>
 	</div>
-	<table *ngIf="tableData" class="table table-bordered table-striped table-hover ui-essence-table">
+	<table class="table table-bordered table-striped table-hover ui-essence-table">
 		<thead>
 			<tr>
 				<td *ngIf="config.columns.batch" class="text-center">
@@ -75,7 +75,16 @@
 								<option value="">全部</option>
 								<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>
 							</select>
-							<input type="date" class="form-control" (change)="dateChange($event.target.value, column)" *ngIf="column.filterProp.type === 'date'">
+							<div style="position: relative;" *ngIf="column.filterProp.type === 'date'">
+								<input type="text" class="form-control"
+								       essence-ng2-datetimepicker
+								       name="time"
+								       [options]="{format: 'YYYY-MM-DD hh:mm:ss'}"
+								       [(ngModel)]="currSelectTime"
+								       readonly
+								       [placeholder]="column.label"
+								       (changeDate)="dateChange($event, column)">
+							</div>
 						</div>
 					</td>
 				</ng-container>
