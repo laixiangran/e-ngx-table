@@ -8,9 +8,11 @@ essence-ng2-table is a Table component for Angular.
 
 2. 支持分页
 
-3. 支持批量选择行
-
 4. 支持列排序及条件筛选
+
+5. 支持单元格自定义格式
+
+6. 支持高级搜索
 
 ## Usage
 
@@ -51,12 +53,61 @@ essence-ng2-table is a Table component for Angular.
 
     ```typescript
     option: any = {
-        serverUrl: 'http://192.168.0.88/zhijian/auth/project/selectByEssenceTablePage.do',
+        serverParam: {
+            serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
+        },
         columns: {
-            primaryKey: "c_id",
+            primaryKey: 'id',
             items: [{
                 label: "工程名称",
-                colName: "c_name"
+                colName: "name",
+                render: (value: any, obj: any) => {
+                    return `<span style="color: royalblue;"><span class="glyphicon glyphicon-user"></span>value</span>`;
+                }
+            }, {
+                label: "工程编号",
+                colName: "no",
+                style: {color: 'red', 'font-weight': 'bold'}
+            }, {
+                label: "工程地址",
+                colName: "address",
+                filterProp: {
+                    type: 'select',
+                    value: [
+                        {
+                            text: '8888',
+                            value: '888'
+                        },
+                        {
+                            text: '北京市',
+                            value: '北京市'
+                        }
+                    ]
+                }
+            }, {
+                label: "创建时间",
+                colName: "createtime",
+                search: false,
+                filterProp: {
+                    type: 'date',
+                    compare: 'eq'
+                }
+            }, {
+                label: "操作",
+                print: false,
+                filterProp: {
+                    enabled: false
+                },
+                order: null,
+                render: [
+                    {
+                        text: '编辑',
+                        cls: 'btn-info btn-xs',
+                        event: (obj: any) => {
+                            console.log(obj);
+                        }
+                    }
+                ]
             }]
         }
     };
@@ -70,7 +121,47 @@ essence-ng2-table is a Table component for Angular.
 
 ### Inputs
 
-- `option` (`?Object`) - 表格配置项
+- `option` (`?Object`) - 表格配置项，默认配置如下：
+
+```json
+serverParam: {
+    serverUrl: "", // 服务地址
+    currentPage: 1, // 当前页
+    pageSize: 5, // 每页显示页数
+    conditions: [], // 查询条件
+    orders: [], // 排序条件
+    search: "", // 全局搜索值
+    fileds: [] // 全局搜索对应字段
+},
+columns: {
+    primaryKey: "id", // 主键
+    filter: true, // 全列过滤
+    batch: false, // 批量选择
+    index: { // 序号列
+        enabled: true, // 是否启用
+        print: true // 是否可以打印
+    },
+    items: {
+        label: "", // 表头标签
+        colName: "", // 字段名
+        visible: true, // 是否可见
+        print: true, // 是否可以打印
+        order: 'normal', // 排序，可取值：null, normal, asc, desc
+        search: true, // 是否加入全局搜索
+        width: null, // 单元格宽度
+        cls: "text-center", // 单元格样式类
+        style: null, // 单元格样式
+        ellipsis: false, // 文字超出单元格是否显示...
+        filterProp: { // 过滤条件
+           enabled: true, // 是否启用
+           type: "string", // 字段数据类型，可取值：string, date, select
+           compare: "like", // 操作符号，可取值：like, eq
+           value: null // 筛选的值
+        },
+        render: null // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值。如果是数组，就显示按钮{text, cls, event}
+    }
+}
+```
 
 ### Outputs (event)
 
@@ -79,8 +170,6 @@ essence-ng2-table is a Table component for Angular.
 ### Instance Method
 
 - `refresh(): void` - 刷新列表数据
-
-- `getSelectedItems(): any[]` - 获取批量选中的条目
 
 ## Develop
 
