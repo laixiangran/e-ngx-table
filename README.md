@@ -178,7 +178,7 @@ columns: {
         filterProp: { // 过滤条件
            enabled: true, // 是否启用
            type: "string", // 字段数据类型，可取值：string, date, select
-           operator: "like", // 操作符号，可取值：like, eq
+           operator: "like", // 操作符号，可取值：like, eq，ne，gt，lt，gte，lte
            value: null // 筛选的值
         },
         // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。

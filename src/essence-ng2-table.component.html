@@ -6,8 +6,9 @@
 				       class="form-control"
 				       name="searchText"
 				       [(ngModel)]="searchText"
+				       [formControl]="searchInput"
 				       placeholder="全局搜索，多条件用空格隔开">
-				<div class="input-group-addon" (click)="search()">
+				<div class="input-group-addon">
 					<span class="glyphicon glyphicon-search"></span>
 				</div>
 			</div>
@@ -41,7 +42,7 @@
 				</td>
 
 				<!--序号-->
-				<td *ngIf="config.columns.index.enabled" class="text-center" [class.hidden-print]="!config.columns.index.print">{{dataIndex + tableData.startIndex + 1}}</td>
+				<td *ngIf="config.columns.index.enabled" class="text-center" [class.hidden-print]="!config.columns.index.print">{{dataIndex + tableData.startIndex}}</td>
 
 				<!--单元格内容-->
 				<ng-container *ngFor="let column of config.columns.items;">
@@ -70,7 +71,11 @@
 				<ng-container *ngFor="let column of config.columns.items;">
 					<td *ngIf="column.visible">
 						<div *ngIf="column.filterProp.enabled">
-							<input type="text" class="form-control" (keyup)="setCurrentColumn(column)" *ngIf="column.filterProp.type === 'string'" [placeholder]="column.label" [formControl]="filterInput">
+							<input type="text" class="form-control"
+							       (keyup)="setCurrentColumn(column)"
+							       *ngIf="column.filterProp.type === 'string'"
+							       [placeholder]="column.label"
+							       [formControl]="filterInput">
 							<select class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'select'">
 								<option value="">全部</option>
 								<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>
@@ -93,7 +98,7 @@
 	</table>
 	<div class="row hidden-print" *ngIf="tableData">
 		<div class="col-sm-6 ui-essence-table-pageInfo">
-			显示 {{tableData.startIndex + 1}} 到 {{tableData.endIndex}} 条，共 {{tableData.totalCount}} 条数据
+			显示 {{tableData.startIndex}} 到 {{tableData.endIndex}} 条，共 {{tableData.totalCount}} 条数据
 		</div>
 		<div class="col-sm-6 pull-right ui-essence-table-pageBtn">
 			<div class="pull-right">

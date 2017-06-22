@@ -27,6 +27,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     private getDataSubscription: Subscription;
     private filterInput: FormControl = new FormControl;
     private filterInputSubscription: Subscription;
+    private searchInput: FormControl = new FormControl;
+    private searchInputSubscription: Subscription;
 
     // 当前列对象
     currentColumn: any;
@@ -45,6 +47,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
     // 已选择行
     selectedDatas: any[] = [];
+
+    currSelectTime: any;
 
     /**
      * 属性设置
@@ -128,7 +132,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // 订阅每列筛选输入框值变化事件
         this.filterInputSubscription = this.filterInput.valueChanges
-            .debounceTime(500) // 延迟500ms
+            .debounceTime(300) // 延迟300ms
             .distinctUntilChanged() // 输入值没变化，不再发请求
             // .switchMap((value: any) => { // 保证请求顺序
             //     return this.getTableData();
@@ -141,12 +145,29 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
                     throw error;
                 }
             );
+
+        // 订阅全局搜索输入框值变化事件
+        this.searchInputSubscription = this.searchInput.valueChanges
+            .debounceTime(300) // 延迟300ms
+            .distinctUntilChanged() // 输入值没变化，不再发请求
+            // .switchMap((value: any) => { // 保证请求顺序
+            //     return this.getTableData();
+            // })
+            .subscribe(
+                (value: any) => {
+                    this.search();
+                },
+                (error: any) => {
+                    throw error;
+                }
+            );
     }
 
     ngOnDestroy() {
         this.tableData = null;
         this.getDataSubscription && this.getDataSubscription.unsubscribe();
         this.filterInputSubscription && this.filterInputSubscription.unsubscribe();
+        this.searchInputSubscription && this.searchInputSubscription.unsubscribe();
     }
 
     /**
@@ -315,14 +336,13 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     dateChange(value: any, column: any) {
-        this.filter(new Date(value).getTime().toString(), column);
+        this.filter(value, column);
     }
 
     /**
      * 全局搜索
      */
     search(): void {
-        console.log('dd');
         this.config.serverParam.search = this.searchText;
         this.refresh();
     }

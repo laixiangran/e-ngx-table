@@ -48,7 +48,7 @@ export class AppComponent {
                 search: false,
                 filterProp: {
                     type: 'date',
-                    compare: 'eq'
+                    operator: 'lt'
                 }
             }, {
                 label: "操作",
