@@ -43,6 +43,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     // 搜索值
     searchText: string;
 
+    // 已选择行
+    selectedDatas: any[] = [];
+
     /**
      * 属性设置
      * @param config
@@ -68,6 +71,13 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     @Output()
     private ready: EventEmitter<any> = new EventEmitter<any>(false);
 
+    /**
+     * 行选择事件
+     * @type {EventEmitter<any>}
+     */
+    @Output()
+    private rowSelect: EventEmitter<any> = new EventEmitter<any>(false);
+
     // 默认配置参数
     private defaultConfig: any = {
         serverParam: {
@@ -82,7 +92,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         columns: {
             primaryKey: "id", // 主键
             filter: true, // 全列过滤
-            batch: false, // 批量选择
+            batch: true, // 批量选择
             index: { // 序号列
                 enabled: true, // 是否启用
                 print: true // 是否可以打印
@@ -345,19 +355,45 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @param data
      * @private
      */
-    checkboxChangeEvent($event, data) {
-        data.selected = $event.target.checked;
-        if (data.selected) {
-            let allStatus = true;
-            for (let i = 0; i < this.tableData.items.length; i++) {
-                if (!this.tableData.items[i].selected) {
-                    allStatus = false;
-                    break;
-                }
+    checkboxChangeEvent(data) {
+        data.selected = !data.selected;
+        let existIndex: number = 0;
+        let isExist: boolean = this.selectedDatas.some((selectedData: any, index: number) => {
+            if (selectedData[this.config.columns.primaryKey] === data[this.config.columns.primaryKey]) {
+                existIndex = index;
             }
-            this.batchAllCheckStatus = allStatus;
+            return selectedData[this.config.columns.primaryKey] === data[this.config.columns.primaryKey];
+        });
+        if (data.selected) {
+            if (!isExist) {
+                let selectData: any = JSON.parse(JSON.stringify(data));
+                delete selectData.selected;
+                this.selectedDatas.push(selectData);
+            }
         } else {
-            this.batchAllCheckStatus = false;
+            if (isExist) {
+                this.selectedDatas.splice(existIndex, 1);
+            }
+        }
+        this.rowSelect.emit(this.selectedDatas);
+    }
+
+    rowChangeEvent(data) {
+        if (!this.config.columns.batch) {
+            this.selectedDatas = [];
+            this.tableData.items.forEach((item: any) => {
+                if (data[this.config.columns.primaryKey] === item[this.config.columns.primaryKey]) {
+                    item.selected = !item.selected;
+                    if (item.selected) {
+                        let selectData: any = JSON.parse(JSON.stringify(item));
+                        delete selectData.selected;
+                        this.selectedDatas.push(selectData);
+                    }
+                } else {
+                    item.selected = false;
+                }
+            });
+            this.rowSelect.emit(this.selectedDatas);
         }
     }
 
@@ -371,6 +407,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.tableData.items.length; i++) {
             this.tableData.items[i].selected = checked;
         }
+        this.selectedDatas = checked ? JSON.parse(JSON.stringify(this.tableData.items)) : [];
+        this.rowSelect.emit(this.selectedDatas);
     }
 
     /**

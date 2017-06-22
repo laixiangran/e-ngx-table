@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { EssenceNg2TableComponent } from "../../src/essence-ng2-table.component";
 
 @Component({
     selector: 'app-root',
@@ -6,6 +7,7 @@ import { Component } from '@angular/core';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+    @ViewChild(EssenceNg2TableComponent) table: EssenceNg2TableComponent;
 
     option: any = {
         serverParam: {
@@ -13,6 +15,7 @@ export class AppComponent {
         },
         columns: {
             primaryKey: 'id',
+            batch: false,
             items: [{
                 label: "工程名称",
                 colName: "name",
@@ -61,6 +64,13 @@ export class AppComponent {
                         event: (obj: any) => {
                             console.log(obj);
                         }
+                    },
+                    {
+                        text: '编辑',
+                        cls: 'btn-info btn-xs',
+                        event: (obj: any) => {
+                            console.log(obj);
+                        }
                     }
                 ]
             }]
@@ -69,8 +79,19 @@ export class AppComponent {
 
     constructor() {}
 
+    // 表格初始完成
     ready() {
         console.log('table ready!');
+    }
+
+    // 行选择事件
+    onRowSelect($event) {
+        console.log($event);
+    }
+
+    // 刷新表格
+    refresh() {
+        this.table.refresh();
     }
 
 }
