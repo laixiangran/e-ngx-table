@@ -49,7 +49,7 @@
 						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])"></div>
 						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))"></div>
 						<div *ngIf="isArray(column.render)">
-							<button style="margin-right: 5px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+							<button style="margin: 2px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
 						</div>
 					</td>
 				</ng-container>

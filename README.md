@@ -14,6 +14,8 @@ essence-ng2-table is a Table component for Angular.
 
 6. 支持高级搜索
 
+7. 支持批量选择行数据
+
 ## Usage
 
 1. Install
@@ -59,7 +61,7 @@ essence-ng2-table is a Table component for Angular.
             serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
         },
         columns: {
-            primaryKey: 'id', // （一般要配置，如果错了选择行事件会失效）
+            primaryKey: 'id', // （一般要配置，如果错了rowSelect事件会失效）
             items: [{
                 label: "工程名称",
                 colName: "name",
@@ -134,7 +136,7 @@ essence-ng2-table is a Table component for Angular.
 
 ### Inputs
 
-- `option` (`?Object`) - 表格配置项，默认配置如下：
+- `option` (`Object`) - 表格配置项，默认配置如下：
 
 ```json
 serverParam: {
@@ -149,7 +151,7 @@ serverParam: {
 columns: {
     primaryKey: "id", // 主键
     filter: true, // 全列过滤
-    batch: false, // 批量选择
+    batch: true, // 批量选择
     index: { // 序号列
         enabled: true, // 是否启用
         print: true // 是否可以打印

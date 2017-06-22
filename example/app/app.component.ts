@@ -15,7 +15,7 @@ export class AppComponent {
         },
         columns: {
             primaryKey: 'id',
-            batch: false,
+            batch: true,
             items: [{
                 label: "工程名称",
                 colName: "name",
