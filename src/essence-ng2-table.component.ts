@@ -1,5 +1,5 @@
 /**
- * Created by Hllinc on 2016-12-21 17:23.
+ * Created by laixiangran on 2017-06-22
  */
 
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from "@angular/core";
@@ -22,13 +22,13 @@ import { TableDataModel } from "./model/tableDataModel";
     templateUrl: './essence-ng2-table.component.html',
     styleUrls: ['./essence-ng2-table.component.scss']
 })
-
 export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
     private getDataSubscription: Subscription;
     private filterInput: FormControl = new FormControl;
     private filterInputSubscription: Subscription;
 
+    // 当前列对象
     currentColumn: any;
 
     // 控制列表全选复选框状态
@@ -39,6 +39,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
     // 表格数据
     tableData: TableDataModel = null;
+
+    // 搜索值
+    searchText: string;
 
     /**
      * 属性设置
@@ -56,10 +59,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         } else {
             throw `columns.items is undefined - 缺少数据列配置，请配置。`;
         }
-    }
-
-    get option(): any {
-        return this.config;
     }
 
     /**
@@ -83,8 +82,11 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         columns: {
             primaryKey: "id", // 主键
             filter: true, // 全列过滤
-            batch: true, // 批量选择
-            index: true, // 序号
+            batch: false, // 批量选择
+            index: { // 序号列
+                enabled: true, // 是否启用
+                print: true // 是否可以打印
+            }
         }
     };
 
@@ -92,22 +94,23 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * 数列配置
      */
     private defaultItemsConfig: any = {
-        label: "",
-        colName: "",
-        visible: true,
-        order: 'NORMAL',
-        search: true,
-        width: null,
-        cls: "text-center",
-        style: null,
-        ellipsis: false,
-        filterProp: {
-            enabled: true,
-            type: "string",
-            compare: "LIKE",
-            value: null
+        label: "", // 表头标签
+        colName: "", // 字段名
+        visible: true, // 是否可见
+        print: true, // 是否可以打印
+        order: 'normal', // 排序，可取值：null, normal, asc, desc
+        search: true, // 是否加入全局搜索
+        width: null, // 单元格宽度
+        cls: "text-center", // 单元格样式类
+        style: null, // 单元格样式
+        ellipsis: false, // 文字超出单元格是否显示...
+        filterProp: { // 过滤条件
+            enabled: true, // 是否启用
+            type: "string", // 字段数据类型，可取值：string, date, select
+            compare: "like", // 操作符号，可取值：like, eq
+            value: null // 筛选的值
         },
-        render: null
+        render: null // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
     };
 
     constructor(private http: Http, public domSanitizer: DomSanitizer) {}
@@ -144,8 +147,8 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.getDataSubscription = this.getTableData().subscribe(
             (serverData: any) => {
                 if (serverData.code == 'ok') {
-                    !this.tableData && this.ready.emit(); // ready事件发送一次
                     this.tableData = <TableDataModel> serverData.result;
+                    this.ready.emit();
                 }
             },
             (error: any) => {
@@ -177,29 +180,15 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         let options = new RequestOptions({headers: headers});
 
         return this.http.post(url, body, options)
-            .map(this.extractData)
-            .catch(this.handleError);
-    }
-
-    /**
-     * 提取数据
-     * @param res Response
-     * @returns {any|{}}
-     */
-    private extractData(res: Response): any {
-        let body = res.json();
-        return body || {};
-    }
-
-    /**
-     * 请求错误
-     * @param error 错误对象
-     * @returns {ErrorObservable}
-     */
-    private handleError(error: any): Observable<any> {
-        let errMsg = (error.message) ? error.message :
-            error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-        return Observable.throw(errMsg);
+            .map((res: Response) => {
+                let body = res.json();
+                return body || {};
+            })
+            .catch((error: any) => {
+                let errMsg = (error.message) ? error.message :
+                    error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+                return Observable.throw(errMsg);
+            });
     }
 
     /**
@@ -213,11 +202,11 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
                     this.config.serverParam.conditions.push({
                         fieldName: col.colName,
                         value: col.filterProp.value,
-                        operator: col.filterProp.compare
+                        operator: col.filterProp.compare.toUpperCase()
                     });
                 }
             }
-            if (col.search) {
+            if (col.search && col.colName) {
                 this.config.serverParam.fileds.push(col.colName);
             }
         });
@@ -240,10 +229,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         let orders: any[] = this.config.serverParam.orders;
         if (isFirst) {
             column.operator = column.order;
-            if (column.order === 'ASC' || column.order === 'DESC') {
+            if (column.order === 'asc' || column.order === 'desc') {
                 orders.push({
                     fieldName: column.colName,
-                    operator: column.operator
+                    operator: column.operator.toUpperCase()
                 });
             }
         } else {
@@ -255,18 +244,18 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
                 return order.fieldName === column.colName;
             });
             if (isExist) {
-                if (column.operator == 'ASC') {
-                    column.operator = 'DESC';
-                    orders[existIndex].operator = column.operator;
-                } else if (column.operator == 'DESC') {
-                    column.operator = 'NORMAL';
+                if (column.operator == 'asc') {
+                    column.operator = 'desc';
+                    orders[existIndex].operator = column.operator.toUpperCase();
+                } else if (column.operator == 'desc') {
+                    column.operator = 'normal';
                     orders.splice(existIndex, 1);
                 }
             } else {
-                column.operator = 'ASC';
+                column.operator = 'asc';
                 orders.push({
                     fieldName: column.colName,
-                    operator: column.operator
+                    operator: column.operator.toUpperCase()
                 });
             }
         }
@@ -299,7 +288,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             conditions.push({
                 fieldName: column.colName,
                 value: value.trim(),
-                operator: column.filterProp.compare
+                operator: column.filterProp.compare.toUpperCase()
             });
         }
     }
@@ -315,57 +304,22 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.refresh();
     }
 
+    dateChange(value: any, column: any) {
+        this.filter(new Date(value).getTime().toString(), column);
+    }
+
     /**
      * 全局搜索
      */
     search(): void {
-
-    }
-
-    /**
-     * 上一页方法
-     * @private
-     */
-    prePage(): void {
-        this.config.serverParam.currentPage--;
+        console.log('dd');
+        this.config.serverParam.search = this.searchText;
         this.refresh();
     }
 
-    /**
-     * 下一页方法
-     * @private
-     */
-    nextPage(): void {
-        this.config.serverParam.currentPage++;
+    pageChanged(event: any): void {
         this.refresh();
-    }
-
-    /**
-     * 跳转页方法
-     * @param num
-     * @private
-     */
-    toPage(num: number): void {
-        if (this.config.serverParam.pageInfo.currentPageNum !== num && num !== -1) {
-            this.config.serverParam.pageInfo.currentPageNum = num;
-            this.config.serverParam.pageInfo.beginRecord = this.config.serverParam.pageInfo.pageSize * (num - 1);
-            this.creatTable();
-        }
-    }
-
-    /**
-     * 数字转数组方法（为了迁就ngFor）
-     * @param n
-     * @returns {Array}
-     * @private
-     */
-    numberArray(n: number) {
-        let result = [];
-        for (let i: number = 0; i < n; i++) {
-            result.push(i + 1);
-        }
-        return result;
-    }
+    };
 
     /**
      * 判断是否为方法
@@ -383,36 +337,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      */
     isArray(param: any): boolean {
         return Array.isArray(param);
-    }
-
-    /**
-     * 生成分页按钮上的文字
-     * @param index
-     * @param currentPageNum
-     * @param sumPageNum
-     * @returns {string}
-     */
-    generateForText(index: number, currentPageNum: number, sumPageNum: number): string {
-        if (index === 1 || index === sumPageNum || currentPageNum + 1 === index || currentPageNum - 1 === index || currentPageNum === index) {
-            return index.toString();
-        } else {
-            return '...';
-        }
-    }
-
-    /**
-     * 生成分页按钮
-     * @param index
-     * @param currentPageNum
-     * @param sumPageNum
-     * @returns {boolean}
-     */
-    generateForButton(index: number, currentPageNum: number, sumPageNum: number): boolean {
-        if ((index - currentPageNum > 2 || currentPageNum - index > 2) && index != 1 && index != sumPageNum) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
     /**
@@ -465,20 +389,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         );
     }
 
-    /**
-     * 获取选中数据
-     */
-    getSelectedItems(): any[] {
-        let result = [];
-        for (let i = 0; i < this.tableData.items.length; i++) {
-            if (this.tableData.items[i].selected) {
-                result.push(this.tableData.items[i]);
-            }
-        }
-        return result;
-    }
-
     trackById(index: any, data: any): any {
-        return data.id;
+        return data.id && data.c_id;
     }
 }

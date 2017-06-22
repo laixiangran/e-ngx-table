@@ -1,10 +1,20 @@
-.ui-essence-table {
+.ui-essence-table-wrapper {
 
-    .order:hover {
-        cursor: pointer;
+    .search-wrapper {
+        margin-bottom: 10px;
+
+        input {
+            width: 220px;
+        }
+
+        .input-group-addon {
+            cursor: pointer;
+        }
     }
-}
 
-.btn {
-    margin: 1px;
+    .ui-essence-table {
+        .order:hover {
+            cursor: pointer;
+        }
+    }
 }
