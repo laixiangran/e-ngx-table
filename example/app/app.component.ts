@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { EssenceNg2TableComponent } from "../../src/essence-ng2-table.component";
 
 @Component({
     selector: 'app-root',
@@ -6,6 +7,7 @@ import { Component } from '@angular/core';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+    @ViewChild(EssenceNg2TableComponent) table: EssenceNg2TableComponent;
 
     option: any = {
         serverUrl: 'http://192.168.0.88/zhijian/auth/project/selectByEssenceTablePage.do',
@@ -95,4 +97,8 @@ export class AppComponent {
         console.log('table ready!');
     }
 
+    // 刷新表格
+    refresh() {
+        this.table.refresh();
+    }
 }
