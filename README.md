@@ -46,18 +46,20 @@ essence-ng2-table is a Table component for Angular.
 4. Use in Template
 
     ```html
-    <essence-ng2-table [option]="option" (ready)="ready()"></essence-ng2-table>
+    <essence-ng2-table [option]="option" (ready)="ready()" (rowSelect)="onRowSelect($event)"></essence-ng2-table>
     ```
 
 5. Use in Component
 
     ```typescript
+    @ViewChild(EssenceNg2TableComponent) table: EssenceNg2TableComponent;
+
     option: any = {
         serverParam: {
             serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
         },
         columns: {
-            primaryKey: 'id',
+            primaryKey: 'id', // （一般要配置，如果错了选择行事件会失效）
             items: [{
                 label: "工程名称",
                 colName: "name",
@@ -112,8 +114,19 @@ essence-ng2-table is a Table component for Angular.
         }
     };
 
+    // 表格初始完成
     ready() {
-        console.log('essence table ready.');
+        console.log('table ready!');
+    }
+
+    // 行选择事件
+    onRowSelect($event) {
+        console.log($event);
+    }
+
+    // 刷新表格
+    refresh() {
+        this.table.refresh();
     }
     ```
 
@@ -166,6 +179,8 @@ columns: {
 ### Outputs (event)
 
 - `ready` - 表格准备就绪后会触发该事件
+
+- `rowSelect` - 行选择事件，参数$event表示已选行的数据，数据类型为对象数组
 
 ### Instance Method
 

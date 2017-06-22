@@ -13,11 +13,11 @@
 			</div>
 		</form>
 	</div>
-	<table class="table table-bordered table-striped ui-essence-table">
+	<table *ngIf="tableData" class="table table-bordered table-striped table-hover ui-essence-table">
 		<thead>
 			<tr>
 				<td *ngIf="config.columns.batch" class="text-center">
-					<input type="checkbox" [checked]="batchAllCheckStatus" (change)="checkboxAllChangeEvent($event)">
+					<input type="checkbox" [checked]="selectedDatas.length === tableData.items.length" [indeterminate]="selectedDatas.length > 0 && selectedDatas.length < tableData.items.length" (change)="checkboxAllChangeEvent($event)">
 				</td>
 				<th *ngIf="config.columns.index.enabled" class="text-nowrap text-center" [class.hidden-print]="!config.columns.index.print">序号</th>
 				<ng-container *ngFor="let column of config.columns.items;">
@@ -30,14 +30,14 @@
 				</ng-container>
 			</tr>
 		</thead>
-		<tbody *ngIf="tableData">
-			<tr *ngFor="let data of tableData.items; trackBy: trackById; let dataIndex = index;">
+		<tbody>
+			<tr [class.success]="data.selected" *ngFor="let data of tableData.items; trackBy: trackById; let dataIndex = index;" (click)="rowChangeEvent(data)">
 
 				<!--批量复选框-->
 				<td *ngIf="config.columns.batch" class="text-center">
 					<input type="checkbox"
 					       [checked]="data.selected"
-					       (change)="checkboxChangeEvent($event,data)">
+					       (change)="checkboxChangeEvent(data)">
 				</td>
 
 				<!--序号-->
@@ -49,7 +49,7 @@
 						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])"></div>
 						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))"></div>
 						<div *ngIf="isArray(column.render)">
-							<button *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+							<button style="margin-right: 5px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
 						</div>
 					</td>
 				</ng-container>
