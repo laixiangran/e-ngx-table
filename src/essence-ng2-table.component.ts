@@ -96,7 +96,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         columns: {
             primaryKey: "id", // 主键
             filter: true, // 全列过滤
-            batch: true, // 批量选择
+            batch: false, // 批量选择
             index: { // 序号列
                 enabled: true, // 是否启用
                 print: true // 是否可以打印
@@ -193,7 +193,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * @returns {Observable<any>}
      */
     getTableData(): Observable<any> {
-        let serverParam: any = JSON.parse(JSON.stringify(this.config.serverParam));
+        let serverParam: any = this.deepCopyObj(this.config.serverParam);
         delete serverParam.serverUrl;
         return this.postData(this.config.serverParam.serverUrl, serverParam);
     }
@@ -335,6 +335,11 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.refresh();
     }
 
+    /**
+     * 选择日期
+     * @param value 时间
+     * @param column 行数据
+     */
     dateChange(value: any, column: any) {
         this.filter(value, column);
     }
@@ -347,6 +352,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.refresh();
     }
 
+    /**
+     * 页面切换
+     * @param event
+     */
     pageChanged(event: any): void {
         this.refresh();
     };
@@ -370,8 +379,16 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * 深度拷贝对象
+     * @param obj
+     * @returns {any}
+     */
+    deepCopyObj(obj: any): any {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    /**
      * 复选框状态改变事件
-     * @param $event
      * @param data
      * @private
      */
@@ -386,7 +403,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         });
         if (data.selected) {
             if (!isExist) {
-                let selectData: any = JSON.parse(JSON.stringify(data));
+                let selectData: any = this.deepCopyObj(data);
                 delete selectData.selected;
                 this.selectedDatas.push(selectData);
             }
@@ -398,6 +415,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         this.rowSelect.emit(this.selectedDatas);
     }
 
+    /**
+     * 行选择事件
+     * @param data
+     */
     rowChangeEvent(data) {
         if (!this.config.columns.batch) {
             this.selectedDatas = [];
@@ -405,7 +426,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
                 if (data[this.config.columns.primaryKey] === item[this.config.columns.primaryKey]) {
                     item.selected = !item.selected;
                     if (item.selected) {
-                        let selectData: any = JSON.parse(JSON.stringify(item));
+                        let selectData: any = this.deepCopyObj(item);
                         delete selectData.selected;
                         this.selectedDatas.push(selectData);
                     }
@@ -420,14 +441,13 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     /**
      * 全选复选框状态改变事件
      * @param $event
-     * @private
      */
     checkboxAllChangeEvent($event) {
         let checked = $event.target.checked;
         for (let i = 0; i < this.tableData.items.length; i++) {
             this.tableData.items[i].selected = checked;
         }
-        this.selectedDatas = checked ? JSON.parse(JSON.stringify(this.tableData.items)) : [];
+        this.selectedDatas = checked ? this.deepCopyObj(this.tableData.items) : [];
         this.rowSelect.emit(this.selectedDatas);
     }
 
@@ -447,6 +467,12 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         );
     }
 
+    /**
+     * 优化ngFor
+     * @param index
+     * @param data
+     * @returns {any}
+     */
     trackById(index: any, data: any): any {
         return data.id && data.c_id;
     }
