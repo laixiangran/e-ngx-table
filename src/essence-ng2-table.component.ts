@@ -85,7 +85,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         columns: {
             primaryKey: "c_id",
             filter: true,
-            batch: true,
+            batch: false,
             index: true
         }
     };
