@@ -149,6 +149,7 @@ essence-ng2-table is a Table component for Angular.
 ```json
 serverParam: {
     serverUrl: "", // 服务地址
+    token: "", // 令牌
     currentPage: 1, // 当前页
     pageSize: 10, // 每页显示页数
     conditions: [], // 查询条件

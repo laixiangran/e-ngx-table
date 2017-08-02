@@ -11,7 +11,7 @@ export class AppComponent {
 
     option: any = {
         serverParam: {
-            serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
+            serverUrl: 'http://192.168.0.8/drainage/TSewerageUserController/getSewerageUserListPage'
         },
         columns: {
             primaryKey: 'id',

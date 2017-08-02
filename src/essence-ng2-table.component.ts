@@ -86,6 +86,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     private defaultConfig: any = {
         serverParam: {
             serverUrl: "", // 服务地址
+            token: "", // 令牌
             currentPage: 1, // 当前页
             pageSize: 10, // 每页显示页数
             conditions: [], // 查询条件
@@ -202,14 +203,22 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
      * post请求
      * @param url 请求路径
      * @param obj 请求body
-     * @param isDev 是否开发模式，默认false
      * @returns {Observable<ServerData>}
      */
-    postData(url: string, obj: any = null, isDev: boolean = false): Observable<any> {
+    postData(url: string, obj: any = null): Observable<any> {
         let body = JSON.stringify(obj);
-        let headers = new Headers({'Content-Type': 'application/json'});
+        let headers: Headers;
+        if (this.config.serverParam.token) {
+            headers = new Headers({
+                'Content-Type': 'application/json',
+                'URMS_LOGIN_TOKEN': this.config.serverParam.token
+            });
+        } else {
+            headers = new Headers({
+                'Content-Type': 'application/json'
+            });
+        }
         let options = new RequestOptions({headers: headers});
-
         return this.http.post(url, body, options)
             .map((res: Response) => {
                 let body = res.json();
