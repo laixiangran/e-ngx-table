@@ -1,3 +1,7 @@
+# 2.0.8（2017-08-30）
+
+- 新增 readme文件新增对conditions，orders的详细说明
+
 # 2.0.7（2017-08-02）
 
 - 新增 请求header添加URMS_LOGIN_TOKEN

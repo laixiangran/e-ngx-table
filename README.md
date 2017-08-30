@@ -56,13 +56,13 @@ essence-ng2-table is a Table component for Angular.
 4. Use in Template
 
     ```html
-    <essence-ng2-table [option]="option" (ready)="ready()" (rowSelect)="onRowSelect($event)"></essence-ng2-table>
+    <essence-ng2-table [option]="option" (ready)="ready($event)" (rowSelect)="onRowSelect($event)"></essence-ng2-table>
     ```
 
 5. Use in Component
 
     ```typescript
-    @ViewChild(EssenceNg2TableComponent) table: EssenceNg2TableComponent;
+    table: EssenceNg2TableComponent;
 
     option: any = {
         serverParam: {
@@ -125,7 +125,8 @@ essence-ng2-table is a Table component for Angular.
     };
 
     // 表格初始完成
-    ready() {
+    ready($event) {
+        this.table = $event;
         console.log('table ready!');
     }
 
@@ -152,8 +153,8 @@ serverParam: {
     token: "", // 令牌
     currentPage: 1, // 当前页
     pageSize: 10, // 每页显示页数
-    conditions: [], // 查询条件
-    orders: [], // 排序条件
+    conditions: [{fieldName: '', value: '', operator: 'LIKE'}], // 查询条件
+    orders: [{fieldName: '', value: '', operator: 'DESC'}], // 排序条件
     search: "", // 全局搜索值
     fileds: [] // 全局搜索对应字段
 },
@@ -189,9 +190,25 @@ columns: {
 }
 ```
 
+```json
+operator的值可以有:
+"EQ"; // 相等
+"NE"; // 不相等
+"LIKE"; // 包含
+"GT"; // 大于
+"LT"; // 小于
+"GTE"; // 大于等于
+"LTE"; // 小于等于
+"AND"; // 交集，复杂条件使用
+"OR"; // 并集，复杂条件使用
+"IN"; // IN
+"ASC"; // 正序，排序使用
+"DESC"; // 倒序，排序使用
+```
+
 ### Outputs (event)
 
-- `ready` - 表格准备就绪后会触发该事件
+- `ready` - 表格准备就绪后会触发该事件，参数$event为EssenceNg2TableComponent的实例
 
 - `rowSelect` - 行选择事件，参数$event表示已选行的数据，数据类型为对象数组
 

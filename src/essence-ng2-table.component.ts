@@ -180,7 +180,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             (serverData: any) => {
                 if (serverData.code == 'ok') {
                     this.tableData = <TableDataModel> serverData.result;
-                    this.ready.emit();
+                    this.ready.emit(this);
                 }
             },
             (error: any) => {
