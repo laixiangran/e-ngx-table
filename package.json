@@ -24,7 +24,7 @@
   },
   "scripts": {
     "release": "gulp prepublish && ngc && npm publish",
-    "start": "ng serve -o",
+    "start": "ng serve -o --proxy-config proxy.config.json",
     "build-test": "ng build --prod --env=test --aot",
     "build-prod": "ng build --prod --env=prod --aot"
   },

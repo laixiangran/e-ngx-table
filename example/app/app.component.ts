@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { EssenceNg2TableComponent } from "../../src/essence-ng2-table.component";
+import { environment } from "../environments/environment";
 
 @Component({
     selector: 'app-root',
@@ -11,7 +12,7 @@ export class AppComponent {
 
     option: any = {
         serverParam: {
-            serverUrl: 'http://192.168.0.8/drainage/TSewerageUserController/getSewerageUserListPage'
+            serverUrl: `${environment.serverHost}TSewerageUserController/getSewerageUserListPage`
         },
         columns: {
             primaryKey: 'id',

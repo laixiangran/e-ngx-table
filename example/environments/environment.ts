@@ -5,5 +5,5 @@
 
 export const environment = {
     production: false, // 是否是生产环境，true为生产环境
-    serverHost: '/' // 请求主路径
+    serverHost: '/drainage/' // 请求主路径
 };
