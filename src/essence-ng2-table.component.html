@@ -47,8 +47,8 @@
 				<!--单元格内容-->
 				<ng-container *ngFor="let column of config.columns.items;">
 					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print">
-						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])"></div>
-						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))"></div>
+						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
+						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 						<div *ngIf="isArray(column.render)">
 							<button style="margin: 2px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
 						</div>

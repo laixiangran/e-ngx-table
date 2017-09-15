@@ -13,4 +13,10 @@
             cursor: pointer;
         }
     }
+
+    .ellip {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
