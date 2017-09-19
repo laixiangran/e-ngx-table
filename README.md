@@ -10,7 +10,7 @@ essence-ng2-table is a Table component for Angular.
 
 4. 支持列排序及条件筛选
 
-5. 支持单元格自定义格式
+5. 支持单元格自定义格式及点击操作
 
 6. 支持高级搜索
 
