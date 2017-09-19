@@ -1,6 +1,6 @@
 <div *ngIf="tableData" class="ui-essence-table-wrapper">
 	<div class="pull-left" *ngIf="config.operateBtn.length>0">
-		<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btn.event()">{{btn.text}}</button>
+		<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btnClick(btn)">{{btn.text}}</button>
 	</div>
 	<div class="pull-right hidden-print search-wrapper">
 		<form class="form-inline">
@@ -49,7 +49,7 @@
 
 				<!--单元格内容-->
 				<ng-container *ngFor="let column of config.columns.items;">
-					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="column.event(data)">
+					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="tdClick(column, data)">
 						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 						<div *ngIf="isArray(column.render)">

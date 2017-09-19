@@ -174,6 +174,22 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * 单元格点击事件
+     * @param column
+     * @param data
+     */
+    tdClick(column: any, data: any) {
+        column.event && column.event(data);
+    }
+
+    /**
+     * 按钮点击事件
+     */
+    btnClick(btn: any) {
+        btn.event && btn.event();
+    }
+
+    /**
      * 创建表格
      */
     creatTable(): void {
