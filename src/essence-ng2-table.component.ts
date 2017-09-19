@@ -94,9 +94,10 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
             search: "", // 全局搜索值
             fileds: [] // 全局搜索对应字段
         },
+        operateBtn: [],
         columns: {
             primaryKey: "id", // 主键
-            filter: true, // 全列过滤
+            filter: false, // 全列过滤
             batch: false, // 批量选择
             index: { // 序号列
                 enabled: true, // 是否启用
@@ -120,12 +121,13 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
         style: null, // 单元格样式
         ellipsis: false, // 文字超出单元格是否显示...
         filterProp: { // 过滤条件
-            enabled: true, // 是否启用
+            enabled: false, // 是否启用
             type: "string", // 字段数据类型，可取值：string, date, select
             operator: "like", // 操作符号，可取值：like, eq
             value: null // 筛选的值
         },
-        render: null // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+        render: null, // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+        event: null // 单元格点击事件, 返回当前行的数据对象
     };
 
     constructor(private http: Http, public domSanitizer: DomSanitizer) {}

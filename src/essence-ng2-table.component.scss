@@ -19,4 +19,12 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
+    .td-select {
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(240, 173, 78, 0.1);
+        }
+    }
 }

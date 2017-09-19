@@ -12,8 +12,16 @@ export class AppComponent {
 
     option: any = {
         serverParam: {
-            serverUrl: `${environment.serverHost}TSewerageUserController/getSewerageUserListPage`
+            serverUrl: `${environment.serverHost}TSewerageUserController/getSewerageUserListPage`,
+            token: 'E4093EDF0EAD188D_117167E7B95C5682C836AFFD9845C6C97D95D44CEA66DC5705E63CD08F603A6500CF493097DD30FA'
         },
+        operateBtn: [{
+            text: '添加',
+            cls: 'btn-success',
+            event: () => {
+                console.log(this);
+            }
+        }],
         columns: {
             primaryKey: 'id',
             batch: true,
@@ -22,6 +30,9 @@ export class AppComponent {
                 colName: "name",
                 render: (value: any, obj: any) => {
                     return `<span style="color: royalblue;"><span class="glyphicon glyphicon-user"></span>value</span>`;
+                },
+                event: (data) => {
+                    console.log(data);
                 }
             }, {
                 label: "工程编号",
@@ -30,33 +41,15 @@ export class AppComponent {
             }, {
                 label: "工程地址",
                 colName: "address",
-                filterProp: {
-                    type: 'select',
-                    value: [
-                        {
-                            text: '8888',
-                            value: '888'
-                        },
-                        {
-                            text: '北京市',
-                            value: '北京市'
-                        }
-                    ]
-                }
+                ellipsis: true,
+                width: '200px'
             }, {
                 label: "创建时间",
                 colName: "createtime",
-                search: false,
-                filterProp: {
-                    type: 'date',
-                    operator: 'lt'
-                }
+                search: false
             }, {
                 label: "操作",
                 print: false,
-                filterProp: {
-                    enabled: false
-                },
                 order: null,
                 render: [
                     {
@@ -67,8 +60,8 @@ export class AppComponent {
                         }
                     },
                     {
-                        text: '编辑',
-                        cls: 'btn-info btn-xs',
+                        text: '刪除',
+                        cls: 'btn-danger btn-xs',
                         event: (obj: any) => {
                             console.log(obj);
                         }

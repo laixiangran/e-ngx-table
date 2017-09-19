@@ -66,8 +66,16 @@ essence-ng2-table is a Table component for Angular.
 
     option: any = {
         serverParam: {
-            serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage'
+            serverUrl: 'http://192.168.0.88/drainage/TSewerageUserController/getSewerageUserListPage',
+            token: '' // 传入登录之后得到的令牌
         },
+        operateBtn: [{
+                 text: '添加',
+                 cls: 'btn-success',
+                 event: () => {
+                     console.log('添加操作！');
+                 }
+             }],
         columns: {
             primaryKey: 'id', // （一般要配置，如果错了rowSelect事件会失效）
             items: [{
@@ -75,6 +83,9 @@ essence-ng2-table is a Table component for Angular.
                 colName: "name",
                 render: (value: any, obj: any) => {
                     return `<span style="color: royalblue;"><span class="glyphicon glyphicon-user"></span>value</span>`;
+                },
+                event: (data) => {
+                    console.log(data);
                 }
             }, {
                 label: "工程编号",
@@ -83,38 +94,27 @@ essence-ng2-table is a Table component for Angular.
             }, {
                 label: "工程地址",
                 colName: "address",
-                filterProp: {
-                    type: 'select',
-                    value: [
-                        {
-                            text: '8888',
-                            value: '888'
-                        },
-                        {
-                            text: '北京市',
-                            value: '北京市'
-                        }
-                    ]
-                }
+                ellipsis: true,
+                width: 200
             }, {
                 label: "创建时间",
                 colName: "createtime",
-                search: false,
-                filterProp: {
-                    type: 'date',
-                    operator: 'eq'
-                }
+                search: false
             }, {
                 label: "操作",
                 print: false,
-                filterProp: {
-                    enabled: false
-                },
                 order: null,
                 render: [
                     {
                         text: '编辑',
                         cls: 'btn-info btn-xs',
+                        event: (obj: any) => {
+                            console.log(obj);
+                        }
+                    },
+                    {
+                        text: '刪除',
+                        cls: 'btn-danger btn-xs',
                         event: (obj: any) => {
                             console.log(obj);
                         }
@@ -148,6 +148,7 @@ essence-ng2-table is a Table component for Angular.
 - `option` (`Object`) - 表格配置项，默认配置如下：
 
 ```json
+
 serverParam: {
     serverUrl: "", // 服务地址
     token: "", // 令牌
@@ -158,9 +159,9 @@ serverParam: {
     search: "", // 全局搜索值
     fileds: [] // 全局搜索对应字段
 },
+operateBtn [] ： 按钮对象数组，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件
 columns: {
     primaryKey: "id", // 主键
-    filter: true, // 全列过滤
     batch: true, // 批量选择
     index: { // 序号列
         enabled: true, // 是否启用
@@ -173,19 +174,14 @@ columns: {
         print: true, // 是否可以打印
         order: 'normal', // 排序，可取值：null, normal, asc, desc
         search: true, // 是否加入全局搜索
-        width: null, // 单元格宽度
+        width: null, // 单元格宽度，如'100px'
         cls: "text-center", // 单元格样式类
         style: null, // 单元格样式
         ellipsis: false, // 文字超出单元格是否显示...
-        filterProp: { // 过滤条件
-           enabled: true, // 是否启用
-           type: "string", // 字段数据类型，可取值：string, date, select
-           operator: "like", // 操作符号，可取值：like, eq，ne，gt，lt，gte，lte
-           value: null // 筛选的值
-        },
         // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。
         // 如果是对象数组，就显示按钮，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件}
-        render: null
+        render: null, //  单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+        event: null, // 单元格点击事件, 返回当前行的数据对象
     }
 }
 ```

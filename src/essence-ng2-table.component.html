@@ -1,4 +1,7 @@
 <div *ngIf="tableData" class="ui-essence-table-wrapper">
+	<div class="pull-left" *ngIf="config.operateBtn.length>0">
+		<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btn.event()">{{btn.text}}</button>
+	</div>
 	<div class="pull-right hidden-print search-wrapper">
 		<form class="form-inline">
 			<div class="input-group">
@@ -22,7 +25,7 @@
 				</td>
 				<th *ngIf="config.columns.index.enabled" class="text-nowrap text-center" [class.hidden-print]="!config.columns.index.print">序号</th>
 				<ng-container *ngFor="let column of config.columns.items;">
-					<th *ngIf="column.visible" [ngClass]="{'text-nowrap': true, 'text-center': true, 'hidden-print': !column.print, 'order': column.order}" (click)="sort(column)" [attr.width]="column.width">
+					<th *ngIf="column.visible" [ngClass]="{'text-nowrap': true, 'text-center': true, 'hidden-print': !column.print, 'order': column.order}" (click)="sort(column)" [style.width]="column.width">
 						<span>
 							{{column.label}}
 						</span>
@@ -46,7 +49,7 @@
 
 				<!--单元格内容-->
 				<ng-container *ngFor="let column of config.columns.items;">
-					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print">
+					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="column.event(data)">
 						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 						<div *ngIf="isArray(column.render)">
@@ -64,37 +67,37 @@
 				</td>
 			</tr>
 		</tbody>
-		<tfoot *ngIf="config.columns.filter && tableData" class="hidden-print">
-			<tr>
-				<td *ngIf="config.columns.batch" class="text-center"></td>
-				<td *ngIf="config.columns.index.enabled"></td>
-				<ng-container *ngFor="let column of config.columns.items;">
-					<td *ngIf="column.visible">
-						<div *ngIf="column.filterProp.enabled">
-							<input type="text" class="form-control"
-							       (keyup)="setCurrentColumn(column)"
-							       *ngIf="column.filterProp.type === 'string'"
-							       [placeholder]="column.label"
-							       [formControl]="filterInput">
-							<select class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'select'">
-								<option value="">全部</option>
-								<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>
-							</select>
-							<div style="position: relative;" *ngIf="column.filterProp.type === 'date'">
-								<input type="text" class="form-control"
-								       essence-ng2-datetimepicker
-								       name="time"
-								       [options]="{format: 'YYYY-MM-DD hh:mm:ss'}"
-								       [(ngModel)]="currSelectTime"
-								       readonly
-								       [placeholder]="column.label"
-								       (changeDate)="dateChange($event, column)">
-							</div>
-						</div>
-					</td>
-				</ng-container>
-			</tr>
-		</tfoot>
+		<!--<tfoot *ngIf="config.columns.filter && tableData" class="hidden-print">-->
+			<!--<tr>-->
+				<!--<td *ngIf="config.columns.batch" class="text-center"></td>-->
+				<!--<td *ngIf="config.columns.index.enabled"></td>-->
+				<!--<ng-container *ngFor="let column of config.columns.items;">-->
+					<!--<td *ngIf="column.visible">-->
+						<!--<div *ngIf="column.filterProp.enabled">-->
+							<!--<input type="text" class="form-control"-->
+							       <!--(keyup)="setCurrentColumn(column)"-->
+							       <!--*ngIf="column.filterProp.type === 'string'"-->
+							       <!--[placeholder]="column.label"-->
+							       <!--[formControl]="filterInput">-->
+							<!--<select class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'select'">-->
+								<!--<option value="">全部</option>-->
+								<!--<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>-->
+							<!--</select>-->
+							<!--<div style="position: relative;" *ngIf="column.filterProp.type === 'date'">-->
+								<!--<input type="text" class="form-control"-->
+								       <!--essence-ng2-datetimepicker-->
+								       <!--name="time"-->
+								       <!--[options]="{format: 'YYYY-MM-DD hh:mm:ss'}"-->
+								       <!--[(ngModel)]="currSelectTime"-->
+								       <!--readonly-->
+								       <!--[placeholder]="column.label"-->
+								       <!--(changeDate)="dateChange($event, column)">-->
+							<!--</div>-->
+						<!--</div>-->
+					<!--</td>-->
+				<!--</ng-container>-->
+			<!--</tr>-->
+		<!--</tfoot>-->
 	</table>
 	<div class="row hidden-print" *ngIf="tableData">
 		<div class="col-sm-6 ui-essence-table-pageInfo">
