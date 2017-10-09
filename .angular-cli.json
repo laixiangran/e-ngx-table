@@ -13,7 +13,7 @@
 			"tsconfig": "tsconfig.json",
 			"prefix": "",
 			"styles": [
-				"./index.css",
+				"./styles.scss",
 				"../node_modules/bootstrap/dist/css/bootstrap.min.css",
 				"../node_modules/font-awesome/css/font-awesome.min.css",
 				"../node_modules/essence-ng2-datetimepicker/dist/assets/css/bootstrap-datetimepicker.min.css"
