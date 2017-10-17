@@ -208,6 +208,8 @@ operator的值可以有:
 
 - `rowSelect` - 行选择事件，参数$event表示已选行的数据，数据类型为对象数组
 
+- `tableRefresh` - 表格刷新后会触发该事件，参数$event为EssenceNg2TableComponent的实例
+
 ### Instance Method
 
 - `refresh(): void` - 刷新列表数据

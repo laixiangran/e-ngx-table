@@ -1,4 +1,4 @@
-<div *ngIf="tableData" class="ui-essence-table-wrapper">
+<div class="ui-essence-table-wrapper">
 	<div class="pull-left" *ngIf="config.operateBtn.length>0">
 		<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btnClick(btn)">{{btn.text}}</button>
 	</div>
@@ -21,7 +21,7 @@
 		<thead>
 			<tr>
 				<td *ngIf="config.columns.batch" class="text-center">
-					<input type="checkbox" [checked]="selectedDatas.length === tableData.items.length" [indeterminate]="selectedDatas.length > 0 && selectedDatas.length < tableData.items.length" (change)="checkboxAllChangeEvent($event)">
+					<input type="checkbox" [checked]="tableData && selectedDatas.length === tableData.items.length" [indeterminate]="tableData && selectedDatas.length > 0 && selectedDatas.length < tableData.items.length" (change)="checkboxAllChangeEvent($event)">
 				</td>
 				<th *ngIf="config.columns.index.enabled" class="text-nowrap text-center" [class.hidden-print]="!config.columns.index.print">序号</th>
 				<ng-container *ngFor="let column of config.columns.items;">
@@ -35,30 +35,32 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr [class.success]="data.selected" *ngFor="let data of tableData.items; trackBy: trackById; let dataIndex = index;" (click)="rowChangeEvent(data)">
+			<ng-container *ngIf="tableData">
+				<tr [class.success]="data.selected" *ngFor="let data of tableData.items; trackBy: trackById; let dataIndex = index;" (click)="rowChangeEvent(data)">
 
-				<!--批量复选框-->
-				<td *ngIf="config.columns.batch" class="text-center">
-					<input type="checkbox"
-					       [checked]="data.selected"
-					       (change)="checkboxChangeEvent(data)">
-				</td>
-
-				<!--序号-->
-				<td *ngIf="config.columns.index.enabled" class="text-center" [class.hidden-print]="!config.columns.index.print">{{dataIndex + tableData.startIndex}}</td>
-
-				<!--单元格内容-->
-				<ng-container *ngFor="let column of config.columns.items;">
-					<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="tdClick(column, data)">
-						<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
-						<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
-						<div *ngIf="isArray(column.render)">
-							<button style="margin: 2px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
-						</div>
+					<!--批量复选框-->
+					<td *ngIf="config.columns.batch" class="text-center">
+						<input type="checkbox"
+						       [checked]="data.selected"
+						       (change)="checkboxChangeEvent(data)">
 					</td>
-				</ng-container>
-			</tr>
-			<tr *ngIf="tableData.items && tableData.items.length <= 0">
+
+					<!--序号-->
+					<td *ngIf="config.columns.index.enabled" class="text-center" [class.hidden-print]="!config.columns.index.print">{{dataIndex + tableData.startIndex}}</td>
+
+					<!--单元格内容-->
+					<ng-container *ngFor="let column of config.columns.items;">
+						<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="tdClick(column, data)">
+							<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
+							<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
+							<div *ngIf="isArray(column.render)">
+								<button style="margin: 2px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+							</div>
+						</td>
+					</ng-container>
+				</tr>
+			</ng-container>
+			<tr *ngIf="tableData && tableData.items && tableData.items.length <= 0">
 				<td *ngIf="config.columns.batch" class="text-center">
 					<input type="checkbox">
 				</td>
@@ -66,38 +68,16 @@
 					无数据！
 				</td>
 			</tr>
+			<tr *ngIf="!tableData">
+				<td *ngIf="config.columns.batch" class="text-center">
+					<input type="checkbox">
+				</td>
+				<td class="text-center" [attr.colspan]="config.columns.items.length + 1">
+					<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+					数据加载中...
+				</td>
+			</tr>
 		</tbody>
-		<!--<tfoot *ngIf="config.columns.filter && tableData" class="hidden-print">-->
-			<!--<tr>-->
-				<!--<td *ngIf="config.columns.batch" class="text-center"></td>-->
-				<!--<td *ngIf="config.columns.index.enabled"></td>-->
-				<!--<ng-container *ngFor="let column of config.columns.items;">-->
-					<!--<td *ngIf="column.visible">-->
-						<!--<div *ngIf="column.filterProp.enabled">-->
-							<!--<input type="text" class="form-control"-->
-							       <!--(keyup)="setCurrentColumn(column)"-->
-							       <!--*ngIf="column.filterProp.type === 'string'"-->
-							       <!--[placeholder]="column.label"-->
-							       <!--[formControl]="filterInput">-->
-							<!--<select class="form-control" (change)="filter($event.target.value, column)" *ngIf="column.filterProp.type === 'select'">-->
-								<!--<option value="">全部</option>-->
-								<!--<option *ngFor="let prop of column.filterProp.value" [value]="prop.value">{{prop.text}}</option>-->
-							<!--</select>-->
-							<!--<div style="position: relative;" *ngIf="column.filterProp.type === 'date'">-->
-								<!--<input type="text" class="form-control"-->
-								       <!--essence-ng2-datetimepicker-->
-								       <!--name="time"-->
-								       <!--[options]="{format: 'YYYY-MM-DD hh:mm:ss'}"-->
-								       <!--[(ngModel)]="currSelectTime"-->
-								       <!--readonly-->
-								       <!--[placeholder]="column.label"-->
-								       <!--(changeDate)="dateChange($event, column)">-->
-							<!--</div>-->
-						<!--</div>-->
-					<!--</td>-->
-				<!--</ng-container>-->
-			<!--</tr>-->
-		<!--</tfoot>-->
 	</table>
 	<div class="row hidden-print" *ngIf="tableData">
 		<div class="col-sm-6 ui-essence-table-pageInfo">

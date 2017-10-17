@@ -84,8 +84,7 @@ export class AppComponent {
     }
 
     // 刷新表格
-    refresh() {
-        this.table.refresh();
+	onTableRefresh() {
+		console.log('table refresh!');
     }
-
 }
