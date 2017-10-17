@@ -43,6 +43,9 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 	// 已选择行
 	selectedDatas: any[] = [];
 
+	// 搜索/排序中
+	isSearching: boolean = false;
+
 	/**
 	 * 属性设置
 	 * @param config
@@ -55,7 +58,12 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 				return _.merge({}, this.defaultItemsConfig, item);
 			});
 			this.config.columns.items = items;
-			this.creatTable();
+			this.setServerParam();
+			if (!this.tableIsloaded) {
+				this.ready.emit(this);
+			} else {
+				this.refresh();
+			}
 		} else {
 			throw `columns.items is undefined - 缺少数据列配置，请配置。`;
 		}
@@ -138,6 +146,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 			.debounceTime(300) // 延迟300ms
 			.distinctUntilChanged() // 输入值没变化，不再发请求
 			.switchMap((value: any) => { // 保证请求顺序
+				this.isSearching = true;
 				this.config.serverParam.search = value;
 			    return this.getTableData();
 			})
@@ -145,9 +154,11 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 				(serverData: any) => {
 					if (serverData.code == 'ok') {
 						this.tableData = <TableDataModel> serverData.result;
+						this.isSearching = false;
 						if (this.tableIsloaded) {
 							this.tableRefresh.emit(this);
 						}
+						this.tableIsloaded = true;
 					} else {
 						throw new Error(serverData.info);
 					}
@@ -178,19 +189,6 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 	 */
 	btnClick(btn: any) {
 		btn.event && btn.event();
-	}
-
-	/**
-	 * 创建表格
-	 */
-	creatTable(): void {
-		this.setServerParam();
-		if (!this.tableIsloaded) {
-			this.tableIsloaded = true;
-			this.ready.emit(this);
-		} else {
-			this.refresh();
-		}
 	}
 
 	/**
@@ -304,6 +302,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 	 */
 	sort(column: any): void {
 		if (column.order) {
+			this.isSearching = true;
 			this.setOrders(column);
 			this.refresh();
 		}
@@ -416,6 +415,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 			(serverData: any) => {
 				if (serverData.code == 'ok') {
 					this.tableData = <TableDataModel> serverData.result;
+					this.isSearching = false;
 					this.tableRefresh.emit(this);
 				}
 			},

@@ -35,6 +35,15 @@
 			</tr>
 		</thead>
 		<tbody>
+			<tr *ngIf="!tableData || isSearching" class="info">
+				<td *ngIf="config.columns.batch" class="text-center">
+					<input type="checkbox">
+				</td>
+				<td class="text-center" [attr.colspan]="config.columns.items.length + 1">
+					<i class="fa fa-spinner fa-pulse fa-fw"></i>
+					数据加载中...
+				</td>
+			</tr>
 			<ng-container *ngIf="tableData">
 				<tr [class.success]="data.selected" *ngFor="let data of tableData.items; trackBy: trackById; let dataIndex = index;" (click)="rowChangeEvent(data)">
 
@@ -66,15 +75,6 @@
 				</td>
 				<td class="text-center" [attr.colspan]="config.columns.items.length + 1">
 					无数据！
-				</td>
-			</tr>
-			<tr *ngIf="!tableData">
-				<td *ngIf="config.columns.batch" class="text-center">
-					<input type="checkbox">
-				</td>
-				<td class="text-center" [attr.colspan]="config.columns.items.length + 1">
-					<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-					数据加载中...
 				</td>
 			</tr>
 		</tbody>
