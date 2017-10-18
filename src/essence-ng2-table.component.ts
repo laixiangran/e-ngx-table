@@ -25,8 +25,9 @@ import { TableDataModel } from './model/tableDataModel';
 export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 
 	private getDataSubscription: Subscription;
-	private searchInput: FormControl = new FormControl;
 	private searchInputSubscription: Subscription;
+
+	searchInput: FormControl = new FormControl;
 
 	// 表格是否已经加载完成（第一次）
 	tableIsloaded: boolean = false;
