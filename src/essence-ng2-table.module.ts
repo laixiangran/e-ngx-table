@@ -5,15 +5,15 @@
 import { NgModule } from "@angular/core";
 import { EssenceNg2TableComponent } from "./essence-ng2-table.component";
 import { CommonModule } from "@angular/common";
-import { HttpModule } from "@angular/http";
 import { ReactiveFormsModule } from "@angular/forms";
 import { EssenceNg2PaginationModule } from "essence-ng2-pagination";
 import { EssenceNg2DatetimepickerModule } from "essence-ng2-datetimepicker";
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     imports: [
         CommonModule,
-        HttpModule,
+		HttpClientModule,
         ReactiveFormsModule,
         EssenceNg2PaginationModule,
         EssenceNg2DatetimepickerModule

@@ -5,7 +5,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl } from '@angular/forms';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/map';
@@ -16,6 +15,7 @@ import 'rxjs/add/operator/switchMap';
 import * as _ from 'lodash';
 
 import { TableDataModel } from './model/tableDataModel';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 @Component({
 	selector: 'essence-ng2-table',
@@ -139,7 +139,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 		event: null // 单元格点击事件, 返回当前行的数据对象
 	};
 
-	constructor(private http: Http, public domSanitizer: DomSanitizer) {}
+	constructor(private http: HttpClient, public domSanitizer: DomSanitizer) {}
 
 	ngOnInit() {
 		// 订阅全局搜索输入框值变化事件
@@ -199,39 +199,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 	getTableData(): Observable<any> {
 		let serverParam: any = this.deepCopyObj(this.config.serverParam);
 		delete serverParam.serverUrl;
-		return this.postData(this.config.serverParam.serverUrl, serverParam);
-	}
-
-	/**
-	 * post请求
-	 * @param url 请求路径
-	 * @param obj 请求body
-	 * @returns {Observable<any>}
-	 */
-	postData(url: string, obj: any = null): Observable<any> {
-		let body = JSON.stringify(obj);
-		let headers: Headers;
-		if (this.config.serverParam.token) {
-			headers = new Headers({
-				'Content-Type': 'application/json',
-				'URMS_LOGIN_TOKEN': this.config.serverParam.token
-			});
-		} else {
-			headers = new Headers({
-				'Content-Type': 'application/json'
-			});
-		}
-		let options = new RequestOptions({headers: headers});
-		return this.http.post(url, body, options)
-			.map((res: Response) => {
-				let body = res.json();
-				return body || {};
-			})
-			.catch((error: any) => {
-				let errMsg = (error.message) ? error.message :
-					error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-				return Observable.throw(errMsg);
-			});
+		return this.post(this.config.serverParam.serverUrl, serverParam);
 	}
 
 	/**
@@ -434,5 +402,27 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 	 */
 	trackById(index: any, data: any): any {
 		return data.id && data.c_id;
+	}
+
+	/**
+	 * post请求
+	 * @param url 请求路径
+	 * @param obj 请求body
+	 * @returns {Observable<any>}
+	 */
+	post(url: string, obj: any = null): Observable<any> {
+		let body = JSON.stringify(obj);
+		let headers: HttpHeaders = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'URMS_LOGIN_TOKEN': this.config.serverParam.token
+		});
+		let options = {
+			headers: headers
+		};
+		return this.http.post(url, body, options).catch((error: HttpErrorResponse) => {
+			let errMsg = (error.message) ? error.message :
+				error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+			return Observable.throw(errMsg);
+		});
 	}
 }
