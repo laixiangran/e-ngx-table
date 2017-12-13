@@ -85,7 +85,7 @@
 		</div>
 		<div class="col-sm-6 pull-right ui-essence-table-pageBtn">
 			<div class="pull-right">
-				<essence-ng2-pagination [totalItems]="tableData.totalCount"
+				<e-ngx-pagination [totalItems]="tableData.totalCount"
 				                        [(ngModel)]="config.serverParam.currentPage"
 				                        [maxSize]="5"
 				                        [itemsPerPage]="config.serverParam.pageSize"
@@ -97,7 +97,7 @@
 				                        firstText="首页"
 				                        lastText="尾页"
 				                        (pageChanged)="pageChanged($event)">
-				</essence-ng2-pagination>
+				</e-ngx-pagination>
 			</div>
 		</div>
 	</div>

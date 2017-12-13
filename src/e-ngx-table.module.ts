@@ -7,7 +7,6 @@ import { ENgxTableComponent } from './e-ngx-table.component';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ENgxPaginationModule } from 'e-ngx-pagination';
-import { ENgxDatetimepickerModule } from 'e-ngx-datetimepicker';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -15,8 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 		CommonModule,
 		HttpClientModule,
 		ReactiveFormsModule,
-		ENgxPaginationModule,
-		ENgxDatetimepickerModule
+		ENgxPaginationModule
 	],
 	declarations: [ENgxTableComponent],
 	exports: [ENgxTableComponent]
