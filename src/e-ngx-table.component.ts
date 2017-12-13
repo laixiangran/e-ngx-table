@@ -18,11 +18,11 @@ import { TableDataModel } from './model/tableDataModel';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 @Component({
-	selector: 'essence-ng2-table',
-	templateUrl: './essence-ng2-table.component.html',
-	styleUrls: ['./essence-ng2-table.component.scss']
+	selector: 'e-ngx-table',
+	templateUrl: './e-ngx-table.component.html',
+	styleUrls: ['./e-ngx-table.component.scss']
 })
-export class EssenceNg2TableComponent implements OnInit, OnDestroy {
+export class ENgxTableComponent implements OnInit, OnDestroy {
 
 	private getDataSubscription: Subscription;
 	private searchInputSubscription: Subscription;
@@ -149,7 +149,7 @@ export class EssenceNg2TableComponent implements OnInit, OnDestroy {
 			.switchMap((value: any) => { // 保证请求顺序
 				this.isSearching = true;
 				this.config.serverParam.search = value;
-			    return this.getTableData();
+				return this.getTableData();
 			})
 			.subscribe(
 				(serverData: any) => {

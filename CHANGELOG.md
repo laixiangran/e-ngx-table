@@ -1,3 +1,7 @@
+# 2.2.0（2017-12-13）
+
+- 将essence-ng2-table更名为e-ngx-table
+
 # 2.1.4（2017-10-30）
 
 - 重构 HttpModule修改为HttpClientModule

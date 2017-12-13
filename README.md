@@ -1,6 +1,6 @@
-# essence-ng2-table
+# e-ngx-table
 
-essence-ng2-table is a Table component for Angular.
+基于Angular的表格组件，耦合后台，仅限公司内部使用。
 
 ## Introduce
 
@@ -19,7 +19,7 @@ essence-ng2-table is a Table component for Angular.
 1. Install
 
 	```shell
-	npm install --save essence-ng2-table@latest
+	npm install --save e-ngx-table@latest
 	```
 
 2. Set in the .angular-cli.json（@angular/cli）
@@ -28,39 +28,38 @@ essence-ng2-table is a Table component for Angular.
     "styles": [
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
         "../node_modules/font-awesome/css/font-awesome.min.css",
-        "../node_modules/essence-ng2-datetimepicker/dist/assets/css/bootstrap-datetimepicker.min.css"
+        "../node_modules/e-ngx-datetimepicker/dist/assets/css/bootstrap-datetimepicker.min.css"
     ],
     "scripts": [
         "../node_modules/jquery/dist/jquery.min.js",
         "../node_modules/moment/min/moment.min.js",
         "../node_modules/moment/min/moment-with-locales.min.js",
-        "../node_modules/essence-ng2-datetimepicker/dist/assets/js/bootstrap-datetimepicker.min.js",
+        "../node_modules/e-ngx-datetimepicker/dist/assets/js/bootstrap-datetimepicker.min.js",
         "../node_modules/bootstrap/dist/js/bootstrap.min.js"
     ]
     ```
 
-3. Add the EssenceNg2TableModule
+3. Add the ENgxTableModule
 
 	```typescript
-	import {EssenceNg2TableModule} from "essence-ng2-table";
+	import {ENgxTableModule} from "e-ngx-table";
 	@NgModule({
 	    imports: [
-	        EssenceNg2TableModule
+	        ENgxTableModule
 	    ]
 	})
 	```
 
-
 4. Use in Template
 
     ```html
-    <essence-ng2-table [option]="option" (ready)="ready($event)" (rowSelect)="onRowSelect($event)"></essence-ng2-table>
+    <e-ngx-table [option]="option" (ready)="ready($event)" (rowSelect)="onRowSelect($event)"></e-ngx-table>
     ```
 
 5. Use in Component
 
     ```typescript
-    table: EssenceNg2TableComponent;
+    table: ENgxTableComponent;
 
     option: any = {
         serverParam: {
@@ -202,11 +201,11 @@ operator的值可以有:
 
 ### Outputs (event)
 
-- `ready` - 表格准备就绪后会触发该事件，参数$event为EssenceNg2TableComponent的实例
+- `ready` - 表格准备就绪后会触发该事件，参数$event为ENgxTableComponent的实例
 
 - `rowSelect` - 行选择事件，参数$event表示已选行的数据，数据类型为对象数组
 
-- `tableRefresh` - 表格刷新后会触发该事件，参数$event为EssenceNg2TableComponent的实例
+- `tableRefresh` - 表格刷新后会触发该事件，参数$event为ENgxTableComponent的实例
 
 ### Instance Method
 
