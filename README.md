@@ -27,14 +27,10 @@
     ```json
     "styles": [
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
-        "../node_modules/font-awesome/css/font-awesome.min.css",
-        "../node_modules/e-ngx-datetimepicker/dist/assets/css/bootstrap-datetimepicker.min.css"
+        "../node_modules/font-awesome/css/font-awesome.min.css"
     ],
     "scripts": [
         "../node_modules/jquery/dist/jquery.min.js",
-        "../node_modules/moment/min/moment.min.js",
-        "../node_modules/moment/min/moment-with-locales.min.js",
-        "../node_modules/e-ngx-datetimepicker/dist/assets/js/bootstrap-datetimepicker.min.js",
         "../node_modules/bootstrap/dist/js/bootstrap.min.js"
     ]
     ```
