@@ -1,4 +1,8 @@
-# 2.2.0（2017-12-13）
+# 2.4.1（2018-02-05）
+
+- 删掉依赖的e-ngx-datetimepicker
+
+# 2.4.0（2017-12-13）
 
 - 将essence-ng2-table更名为e-ngx-table
 
