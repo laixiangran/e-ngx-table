@@ -28,10 +28,6 @@
     "styles": [
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
         "../node_modules/font-awesome/css/font-awesome.min.css"
-    ],
-    "scripts": [
-        "../node_modules/jquery/dist/jquery.min.js",
-        "../node_modules/bootstrap/dist/js/bootstrap.min.js"
     ]
     ```
 
@@ -69,6 +65,8 @@
                      console.log('添加操作！');
                  }
              }],
+        showGlobalSearch: true, // 是否显示全局搜索，默认显示
+        showComplexSearch: true, // 是否显示复杂搜索框，默认隐藏
         columns: {
             primaryKey: 'id', // （一般要配置，如果错了rowSelect事件会失效）
             items: [{
@@ -92,7 +90,9 @@
             }, {
                 label: "创建时间",
                 colName: "createtime",
-                search: false
+                search: false,
+                complexSearch: true,
+                type: 'time'
             }, {
                 label: "操作",
                 print: false,
@@ -153,6 +153,8 @@ serverParam: {
     fileds: [] // 全局搜索对应字段
 },
 operateBtn [] ： 按钮对象数组，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件
+showGlobalSearch: true, // 是否显示全局搜索，默认是true
+showComplexSearch: true, // 是否显示复杂搜索框，默认是false，如果设置为true，则在想要进行复杂筛选的items对象里面加两个属性：complexSearch: true,type: 'string','number
 columns: {
     primaryKey: "id", // 主键
     batch: true, // 批量选择
@@ -160,22 +162,50 @@ columns: {
         enabled: true, // 是否启用
         print: true // 是否可以打印
     },
-    items: {
-        label: "", // 表头标签
-        colName: "", // 字段名
-        visible: true, // 是否可见
-        print: true, // 是否可以打印
-        order: 'normal', // 排序，可取值：null, normal, asc, desc
-        search: true, // 是否加入全局搜索
-        width: null, // 单元格宽度，如'100px'
-        cls: "text-center", // 单元格样式类
-        style: null, // 单元格样式
-        ellipsis: false, // 文字超出单元格是否显示...
-        // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。
-        // 如果是对象数组，就显示按钮，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件}
-        render: null, //  单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
-        event: null, // 单元格点击事件, 返回当前行的数据对象
-    }
+    items: [
+        {
+            label: "", // 表头标签
+            colName: "", // 字段名
+            visible: true, // 是否可见
+            print: true, // 是否可以打印
+            order: 'normal', // 排序，可取值：null, normal, asc, desc
+            search: true, // 是否加入全局搜索，默认是true
+            complexSearch: true, //是否能进行复杂筛选，默认是false，如果设置为true，则再需要添加一个type属性
+            type: 'string', // 当complexSearch设置为true时，才会需要添加该属性，可选的属性值有：'string','number'
+            width: null, // 单元格宽度，如'100px'
+            cls: "text-center", // 单元格样式类
+            style: null, // 单元格样式
+            ellipsis: false, // 文字超出单元格是否显示...
+            // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。
+            // 如果是对象数组，就显示按钮，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件}
+            render: null, //  单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+            event: null, // 单元格点击事件, 返回当前行的数据对象
+        },
+        { // 操作按钮列的设置
+            label: "操作",
+            print: false,
+            order: null,
+            exist: (obj) => {
+                // 控制按钮的显隐藏，如果返回值为true，则显示该按钮，如果返回值为false，则隐藏该按钮
+            },
+            render: [
+               {
+                   text: '编辑',
+                   cls: 'btn-info btn-xs',
+                   event: (obj: any) => {
+                       console.log(obj);
+                   }
+               },
+               {
+                   text: '刪除',
+                   cls: 'btn-danger btn-xs',
+                   event: (obj: any) => {
+                       console.log(obj);
+                   }
+               }
+            ]
+       }
+    ]
 }
 ```
 

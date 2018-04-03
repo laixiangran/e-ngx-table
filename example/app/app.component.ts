@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ENgxTableComponent } from '../../src/e-ngx-table.component';
 import { environment } from '../environments/environment';
+import {Sys} from './utils/sys';
 
 @Component({
 	selector: 'app-root',
@@ -12,8 +13,8 @@ export class AppComponent {
 
 	option: any = {
 		serverParam: {
-			serverUrl: `${environment.serverHost}TSewerageUserController/getSewerageUserListPage`,
-			token: 'E4093EDF0EAD188D_117167E7B95C5682C836AFFD9845C6C97D95D44CEA66DC5705E63CD08F603A6500CF493097DD30FA'
+			serverUrl: `${environment.serverHost}SysLogController/getSysLogListPage`,
+			token: 'AA87FE87EB7E90CE_117167E7B95C5682C836AFFD9845C6C97D95D44CEA66DC5705E63CD08F603A6500CF493097DD30FA'
 		},
 		operateBtn: [{
 			text: '添加',
@@ -22,51 +23,91 @@ export class AppComponent {
 				console.log(this);
 			}
 		}],
+		showGlobalSearch: true,
+		showComplexSearch: true,
 		columns: {
-			primaryKey: 'id',
-			batch: true,
-			items: [{
-				label: '工程名称',
-				colName: 'name',
-				render: (value: any, obj: any) => {
-					return `<span style="color: royalblue;"><span class="glyphicon glyphicon-user"></span>value</span>`;
-				},
-				event: (data) => {
-					console.log(data);
+			primaryKey: 'id', // （一般要配置，如果错了rowSelect事件会失效）
+			items: [/*{
+				label: '操作人',
+				colName: 'user',
+				search: false,
+				render: (value: any) => {
+					if (value) {
+						return value.realName;
+					} else {
+						return '/';
+					}
+				}
+			}, */{
+				label: '请求方法',
+				colName: 'method',
+				search: true,
+				complexSearch: true,
+				type: 'string',
+				render: (value) => {
+					return value ? value : '/';
 				}
 			}, {
-				label: '工程编号',
-				colName: 'no',
-				style: {color: 'red', 'font-weight': 'bold'}
+				label: '操作时间',
+				colName: 'date',
+				search: true,
+				complexSearch: true,
+				type: 'time',
+				render: (value) => {
+					return value ? Sys.dateFormat(value, 'yyyy-MM-dd') : '/';
+				}
 			}, {
-				label: '工程地址',
-				colName: 'address',
-				ellipsis: true,
-				width: '200px'
+				label: '描述信息',
+				colName: 'info',
+				search: false,
+				complexSearch: true,
+				type: 'string',
+				render: (value) => {
+					return value ? value : '/';
+				}
 			}, {
-				label: '创建时间',
-				colName: 'createtime',
-				search: false
+				label: '请求路径',
+				colName: 'cclass',
+				search: false,
+				complexSearch: true,
+				type: 'string',
+				render: (value) => {
+					return value ? value : '/';
+				}
 			}, {
 				label: '操作',
-				print: false,
 				order: null,
-				render: [
-					{
-						text: '编辑',
-						cls: 'btn-info btn-xs',
-						event: (obj: any) => {
-							console.log(obj);
-						}
-					},
-					{
-						text: '刪除',
-						cls: 'btn-danger btn-xs',
-						event: (obj: any) => {
-							console.log(obj);
-						}
+				colName: null,
+				width: 300,
+				render: [{
+					text: '微信通知',
+					type: 'button',
+					cls: 'btn-xs btn-info radius-button',
+					exist: () => {
+						return false;
 					}
-				]
+				}, {
+					text: '附件',
+					type: 'button',
+					cls: 'btn-xs btn-success radius-button',
+					exist: () => {
+						return true;
+					}
+				}, {
+					text: '编辑',
+					type: 'button',
+					cls: 'btn-xs btn-warning radius-button',
+					exist: () => {
+						return false;
+					}
+				}, {
+					text: '删除',
+					type: 'button',
+					cls: 'btn-xs btn-danger radius-button',
+					exist: () => {
+						return true;
+					}
+				}]
 			}]
 		}
 	};

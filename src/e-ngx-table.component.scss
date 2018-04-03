@@ -29,3 +29,17 @@
         }
     }
 }
+
+.complexSearchBox{
+    margin-bottom: 10px;
+    display: none;
+    border: 1px dashed green;
+    padding:10px;
+    border-radius: 5px;
+    .formBox{
+        margin-bottom: 10px;
+    }
+    &.showComplex{
+        display: block;
+    }
+}

@@ -1,20 +1,51 @@
 <div class="ui-essence-table-wrapper">
-	<div class="pull-left" *ngIf="config.operateBtn.length>0">
-		<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btnClick(btn)">{{btn.text}}</button>
-	</div>
-	<div class="pull-right hidden-print search-wrapper">
-		<form class="form-inline">
-			<div class="input-group">
-				<input type="text"
-				       class="form-control"
-				       name="searchText"
-				       [(ngModel)]="searchText"
-				       [formControl]="searchInput"
-				       placeholder="全局搜索，多条件用空格隔开">
-				<div class="input-group-addon">
-					<span class="glyphicon glyphicon-search"></span>
+	<div style="height: 40px;">
+		<div class="pull-left" *ngIf="config.operateBtn.length > 0">
+			<button style="margin-right: 5px;" *ngFor="let btn of config.operateBtn" class="btn" [ngClass]="btn.cls" (click)="btnClick(btn)">{{btn.text}}</button>
+		</div>
+		<div class="pull-right hidden-print search-wrapper" *ngIf="config.showGlobalSearch">
+			<form class="form-inline">
+				<div class="input-group">
+					<input type="text"
+					       class="form-control"
+					       name="searchText"
+					       [(ngModel)]="searchText"
+					       [formControl]="searchInput"
+					       placeholder="全局搜索，多条件用空格隔开">
+					<div class="input-group-addon">
+						<span class="glyphicon glyphicon-search"></span>
+					</div>
 				</div>
-			</div>
+				<button class="btn btn-info" *ngIf="config.showComplexSearch" (click)="searchClick()">高级搜索</button>
+			</form>
+		</div>
+	</div>
+	<div class="complexSearchBox" [class.showComplex]="showComplexSearch">
+		<div class="btn-group btn-group-sm">
+			<button class="btn btn-success" (click)="addCondition()">添加条件</button>
+			<button class="btn btn-warning" (click)="conditionList = []">清除条件</button>
+			<button class="btn btn-default" (click)="showComplexSearch = false;conditionList = []">关闭</button>
+			<button class="btn btn-info" (click)="search()">搜索</button>
+		</div>
+		<form class="form-inline formBox" #form *ngFor="let item of conditionList; let i = index;">
+			<select [name]="'columnItem' + i" class="form-control" (change)="optionChange($event, item)">
+				<option [value]="ite.colName" *ngFor="let ite of complexSearchItems">{{ite.label}}</option>
+			</select>
+			<select name="operator" class="form-control" *ngIf="item.type === 'string'" (change)="operatorChange($event, item)">
+				<option value="EQ">等于</option>
+				<option value="NE">不等于</option>
+				<option value="LIKE">包含</option>
+			</select>
+			<select name="operator" #operator class="form-control" *ngIf="item.type === 'time' || item.type === 'number'" (change)="operatorChange($event, item)">
+				<option value="EQ">等于</option>
+				<option value="NE">不等于</option>
+				<option value="GT">大于</option>
+				<option value="LT">小于</option>
+				<option value="GTE">大于等于</option>
+				<option value="LTE">小于等于</option>
+			</select>
+			<input type="text" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'string'">
+			<input type="text" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'number'">
 		</form>
 	</div>
 	<table class="table table-bordered table-striped table-hover ui-essence-table">
@@ -63,7 +94,9 @@
 							<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 							<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 							<div *ngIf="isArray(column.render)">
-								<button style="margin: 2px;" *ngFor="let button of column.render;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+								<ng-container *ngFor="let button of column.render;">
+									<button *ngIf="!_isFunction(button.exist) || button.exist(data)" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+								</ng-container>
 							</div>
 						</td>
 					</ng-container>

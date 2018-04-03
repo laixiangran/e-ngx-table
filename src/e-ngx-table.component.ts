@@ -47,6 +47,20 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	// 搜索/排序中
 	isSearching: boolean = false;
 
+	// 复杂筛选列
+	complexSearchItems: any[] = [];
+
+	// 复杂筛选条件
+	conditionList: any[] = [];
+
+	// 显示高级搜索条件与否
+	showComplexSearch: boolean = false;
+
+	// 日期组件配置
+	options: any = {
+		format: 'YYYY-MM-DD'
+	};
+
 	/**
 	 * 属性设置
 	 * @param config
@@ -60,6 +74,9 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			});
 			this.config.columns.items = items;
 			this.setServerParam();
+			if (this.config.showComplexSearch) {
+				this.setComplexSearchItem();
+			}
 			if (!this.tableIsloaded) {
 				this.ready.emit(this);
 			} else {
@@ -104,6 +121,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			fileds: [] // 全局搜索对应字段
 		},
 		operateBtn: [],
+		showGlobalSearch: true,
+		showComplexSearch: false,
 		columns: {
 			primaryKey: 'id', // 主键
 			filter: false, // 全列过滤
@@ -129,6 +148,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		cls: 'text-center', // 单元格样式类
 		style: null, // 单元格样式
 		ellipsis: false, // 文字超出单元格是否显示...
+		complexSearch: false, // 是否可以进行复杂筛选
+		type: 'string',
 		filterProp: { // 过滤条件
 			enabled: false, // 是否启用
 			type: 'string', // 字段数据类型，可取值：string, date, select
@@ -142,18 +163,37 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	constructor(private http: HttpClient, public domSanitizer: DomSanitizer) {}
 
 	ngOnInit() {
-		// 订阅全局搜索输入框值变化事件
-		this.searchInputSubscription = this.searchInput.valueChanges
-			.debounceTime(300) // 延迟300ms
-			.distinctUntilChanged() // 输入值没变化，不再发请求
-			.switchMap((value: any) => { // 保证请求顺序
-				this.isSearching = true;
-				this.config.serverParam.search = value;
-				return this.getTableData();
-			})
-			.subscribe(
+		if (this.config.showGlobalSearch) {
+			// 订阅全局搜索输入框值变化事件
+			this.searchInputSubscription = this.searchInput.valueChanges
+				.debounceTime(300) // 延迟300ms
+				.distinctUntilChanged() // 输入值没变化，不再发请求
+				.switchMap((value: any) => { // 保证请求顺序
+					this.isSearching = true;
+					this.config.serverParam.search = value;
+					return this.getTableData();
+				})
+				.subscribe(
+					(serverData: any) => {
+						if (serverData.code === 'ok') {
+							this.tableData = <TableDataModel> serverData.result;
+							this.isSearching = false;
+							if (this.tableIsloaded) {
+								this.tableRefresh.emit(this);
+							}
+							this.tableIsloaded = true;
+						} else {
+							throw new Error(serverData.info);
+						}
+					},
+					(error: any) => {
+						throw new Error(error);
+					}
+				);
+		} else {
+			this.getTableData().subscribe(
 				(serverData: any) => {
-					if (serverData.code == 'ok') {
+					if (serverData.code === 'ok') {
 						this.tableData = <TableDataModel> serverData.result;
 						this.isSearching = false;
 						if (this.tableIsloaded) {
@@ -168,12 +208,77 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 					throw new Error(error);
 				}
 			);
+		}
 	}
 
 	ngOnDestroy() {
 		this.tableData = null;
 		this.getDataSubscription && this.getDataSubscription.unsubscribe();
 		this.searchInputSubscription && this.searchInputSubscription.unsubscribe();
+	}
+
+	/**
+	 * 高级搜索按钮点击事件
+	 */
+	searchClick() {
+		this.showComplexSearch = !this.showComplexSearch;
+	}
+
+	/**
+	 * 添加条件按钮点击事件
+	 */
+	addCondition() {
+		this.conditionList.push({
+			fieldName: this.complexSearchItems[0].colName,
+			operator: 'EQ',
+			value: '',
+			type: 'string'
+		});
+	}
+
+	/**
+	 * colName值变化
+	 * @param $event
+	 * @param item
+	 */
+	optionChange($event, item) {
+		item.fieldName = $event.target.value;
+		this.complexSearchItems.forEach((curItem) => {
+			if (curItem.colName === $event.target.value) {
+				item.type = curItem.type;
+			}
+		});
+	}
+
+	operatorChange($event, item) {
+		item.operator = $event.target.value;
+	}
+
+	search() {
+		const conditions = [];
+		this.conditionList.forEach((ite) => {
+			if (ite.value) {
+				conditions.push({fieldName: ite.fieldName, operator: ite.operator, value: ite.value});
+			}
+		});
+		this.config.serverParam.conditions = conditions;
+		this.getTableData().subscribe(
+			(serverData: any) => {
+				if (serverData.code === 'ok') {
+					this.tableData = <TableDataModel> serverData.result;
+					this.isSearching = false;
+					if (this.tableIsloaded) {
+						this.tableRefresh.emit(this);
+					}
+					this.tableIsloaded = true;
+				} else {
+					throw new Error(serverData.info);
+				}
+			},
+			(error: any) => {
+				throw new Error(error);
+			}
+		);
 	}
 
 	/**
@@ -209,7 +314,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		this.config.columns.items.forEach((col: any) => {
 			this.setOrders(col, true);
 			if (col.filterProp && col.filterProp.enabled) {
-				if (col.filterProp.type != 'select' && col.filterProp.value) {
+				if (col.filterProp.type !== 'select' && col.filterProp.value) {
 					this.config.serverParam.conditions.push({
 						fieldName: col.colName,
 						value: col.filterProp.value,
@@ -219,6 +324,21 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			}
 			if (col.search && col.colName) {
 				this.config.serverParam.fileds.push(col.colName);
+			}
+		});
+	}
+
+	/**
+	 * 设置复杂筛选的列
+	 */
+	setComplexSearchItem() {
+		this.config.columns.items.forEach((col: any) => {
+			if (col.complexSearch && col.colName) {
+				this.complexSearchItems.push({
+					label: col.label,
+					colName: col.colName,
+					type: col.type
+				})
 			}
 		});
 	}
@@ -424,5 +544,16 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 				error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 			return Observable.throw(errMsg);
 		});
+	}
+
+
+	/**
+	 * 判断对象是否为方法（模板语法中不支持typeof）
+	 * @param param
+	 * @returns {boolean}
+	 * @private
+	 */
+	private _isFunction(param: any) {
+		return typeof param == 'function';
 	}
 }
