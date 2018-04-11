@@ -99,7 +99,7 @@
 							<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 							<div *ngIf="isArray(column.render)">
 								<ng-container *ngFor="let button of column.render;">
-									<button *ngIf="!_isFunction(button.exist) || button.exist(data)" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+									<button *ngIf="!isFunction(button.exist) || button.exist(data)" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
 								</ng-container>
 							</div>
 						</td>

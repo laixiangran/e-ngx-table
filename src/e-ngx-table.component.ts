@@ -601,15 +601,4 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			return Observable.throw(errMsg);
 		});
 	}
-
-
-	/**
-	 * 判断对象是否为方法（模板语法中不支持typeof）
-	 * @param param
-	 * @returns {boolean}
-	 * @private
-	 */
-	private _isFunction(param: any) {
-		return typeof param == 'function';
-	}
 }
