@@ -170,8 +170,11 @@ columns: {
             print: true, // 是否可以打印
             order: 'normal', // 排序，可取值：null, normal, asc, desc
             search: true, // 是否加入全局搜索，默认是true
-            complexSearch: true, //是否能进行复杂筛选，默认是false，如果设置为true，则再需要添加一个type属性
-            type: 'string', // 当complexSearch设置为true时，才会需要添加该属性，可选的属性值有：'string','number'
+            complexSearch: {
+                enable: false, // 是否能进行复杂筛选，如果不配置complexSearch对象，则默认是false
+                type: 'string', // 'string', 'number', 'select'
+                data: [{text: '待解决', value: 0}] // 只有type为'select'时，才需要设置该属性，属性值是对象数组
+            },
             width: null, // 单元格宽度，如'100px'
             cls: "text-center", // 单元格样式类
             style: null, // 单元格样式

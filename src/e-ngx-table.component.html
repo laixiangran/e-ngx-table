@@ -24,7 +24,7 @@
 		<div class="btn-group btn-group-sm">
 			<button class="btn btn-success" (click)="addCondition()">添加条件</button>
 			<button class="btn btn-warning" (click)="conditionList = []">清除条件</button>
-			<button class="btn btn-default" (click)="showComplexSearch = false;conditionList = []">关闭</button>
+			<button class="btn btn-default" (click)="closeComplexSearch()">关闭</button>
 			<button class="btn btn-info" (click)="search()">搜索</button>
 		</div>
 		<form class="form-inline formBox" #form *ngFor="let item of conditionList; let i = index;">
@@ -44,8 +44,12 @@
 				<option value="GTE">大于等于</option>
 				<option value="LTE">小于等于</option>
 			</select>
+			<select name="select" *ngIf="item.type === 'select'" class="form-control" (change)="item.value = $event.target.value">
+				<option value="1" *ngFor="let curItem of item.data">{{curItem.text}}</option>
+			</select>
 			<input type="text" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'string'">
-			<input type="text" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'number'">
+			<input type="number" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'number'">
+			<span class="btn btn-danger btn-xs" title="清除该条件" (click)="conditionList.splice(i, 1)"><i class="fa fa-close"></i></span>
 		</form>
 	</div>
 	<table class="table table-bordered table-striped table-hover ui-essence-table">

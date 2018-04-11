@@ -10,7 +10,19 @@ import {Sys} from './utils/sys';
 })
 export class AppComponent {
 	@ViewChild(ENgxTableComponent) table: ENgxTableComponent;
-
+	data = [{
+		text: '编辑中',
+		value: 2
+	}, {
+		text: '已通过',
+		value: 1
+	}, {
+		text: '未通过',
+		value: 0
+	}, {
+		text: '待审核',
+		value: 3 || null
+	}];
 	option: any = {
 		serverParam: {
 			serverUrl: `${environment.serverHost}SysLogController/getSysLogListPage`,
@@ -39,20 +51,13 @@ export class AppComponent {
 					}
 				}
 			}, */{
-				label: '请求方法',
-				colName: 'method',
-				search: true,
-				complexSearch: true,
-				type: 'string',
-				render: (value) => {
-					return value ? value : '/';
-				}
-			}, {
 				label: '操作时间',
 				colName: 'date',
 				search: true,
-				complexSearch: true,
-				type: 'time',
+				complexSearch: {
+					enable: true,
+					type: 'string'
+				},
 				render: (value) => {
 					return value ? Sys.dateFormat(value, 'yyyy-MM-dd') : '/';
 				}
@@ -60,8 +65,22 @@ export class AppComponent {
 				label: '描述信息',
 				colName: 'info',
 				search: false,
-				complexSearch: true,
-				type: 'string',
+				complexSearch: {
+					enable: true,
+					type: 'string'
+				},
+				render: (value) => {
+					return value ? value : '/';
+				}
+			}, {
+				label: '请求方法',
+				colName: 'method',
+				search: true,
+				complexSearch: {
+					enable: true,
+					type: 'select',
+					data: this.data
+				},
 				render: (value) => {
 					return value ? value : '/';
 				}
@@ -69,8 +88,10 @@ export class AppComponent {
 				label: '请求路径',
 				colName: 'cclass',
 				search: false,
-				complexSearch: true,
-				type: 'string',
+				complexSearch: {
+					enable: true,
+					type: 'string'
+				},
 				render: (value) => {
 					return value ? value : '/';
 				}

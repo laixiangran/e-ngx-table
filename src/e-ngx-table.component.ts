@@ -60,6 +60,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	options: any = {
 		format: 'YYYY-MM-DD'
 	};
+	// 传进来的conditions
+	tableContions: any;
 
 	/**
 	 * 属性设置
@@ -68,6 +70,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	@Input()
 	set option(config: any) {
 		this.config = _.merge({}, this.defaultConfig, config);
+		this.tableContions = this.config.serverParam.conditions; // 将传进来的conditons保存起来
 		if (this.config.columns.items) {
 			let items: any[] = this.config.columns.items.map((item: any) => {
 				return _.merge({}, this.defaultItemsConfig, item);
@@ -148,7 +151,10 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		cls: 'text-center', // 单元格样式类
 		style: null, // 单元格样式
 		ellipsis: false, // 文字超出单元格是否显示...
-		complexSearch: false, // 是否可以进行复杂筛选
+		complexSearch: {
+			enable: false,
+			type: 'string',
+		}, // 是否可以进行复杂筛选
 		type: 'string',
 		filterProp: { // 过滤条件
 			enabled: false, // 是否启用
@@ -232,7 +238,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			fieldName: this.complexSearchItems[0].colName,
 			operator: 'EQ',
 			value: '',
-			type: 'string'
+			type: this.complexSearchItems[0].type,
+			data: this.complexSearchItems[0].type === 'select' ? this.complexSearchItems[0].data : null
 		});
 	}
 
@@ -246,6 +253,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		this.complexSearchItems.forEach((curItem) => {
 			if (curItem.colName === $event.target.value) {
 				item.type = curItem.type;
+				item.data = item.type === 'select' ? curItem.data : null;
 			}
 		});
 	}
@@ -254,6 +262,9 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		item.operator = $event.target.value;
 	}
 
+	/**
+	 * 搜索按钮点击事件
+	 */
 	search() {
 		const conditions = [];
 		this.conditionList.forEach((ite) => {
@@ -261,6 +272,11 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 				conditions.push({fieldName: ite.fieldName, operator: ite.operator, value: ite.value});
 			}
 		});
+		if (this.tableContions.length > 0) {
+			this.tableContions.forEach((con) => {
+				conditions.push(con);
+			})
+		}
 		this.config.serverParam.conditions = conditions;
 		this.getTableData().subscribe(
 			(serverData: any) => {
@@ -281,6 +297,37 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	/**
+	 * 关闭复杂筛选
+	 */
+	closeComplexSearch() {
+		this.showComplexSearch = false;
+		this.conditionList = [];
+		const conditions = [];
+		if (this.tableContions.length > 0) {
+			this.tableContions.forEach((con) => {
+				conditions.push(con);
+			})
+		}
+		this.config.serverParam.conditions = conditions;
+		this.getTableData().subscribe(
+			(serverData: any) => {
+				if (serverData.code === 'ok') {
+					this.tableData = <TableDataModel> serverData.result;
+					this.isSearching = false;
+					if (this.tableIsloaded) {
+						this.tableRefresh.emit(this);
+					}
+					this.tableIsloaded = true;
+				} else {
+					throw new Error(serverData.info);
+				}
+			},
+			(error: any) => {
+				throw new Error(error);
+			}
+		);
+	}
 	/**
 	 * 单元格点击事件
 	 * @param column
@@ -333,12 +380,21 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	 */
 	setComplexSearchItem() {
 		this.config.columns.items.forEach((col: any) => {
-			if (col.complexSearch && col.colName) {
-				this.complexSearchItems.push({
-					label: col.label,
-					colName: col.colName,
-					type: col.type
-				})
+			if (col.complexSearch.enable && col.colName) {
+				if (col.complexSearch.type === 'select') {
+					this.complexSearchItems.push({
+						label: col.label,
+						colName: col.colName,
+						type: 'select',
+						data: col.complexSearch.data
+					})
+				} else {
+					this.complexSearchItems.push({
+						label: col.label,
+						colName: col.colName,
+						type: col.complexSearch.type
+					})
+				}
 			}
 		});
 	}

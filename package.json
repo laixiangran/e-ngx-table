@@ -1,6 +1,6 @@
 {
   "name": "e-ngx-table",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "基于Angular的表格组件，耦合后台，仅限公司内部使用",
   "keywords": [
     "angular",
