@@ -33,7 +33,7 @@
 	"dependencies": {
 		"@types/lodash": "^4.14.64",
 		"bootstrap": "^3.3.7",
-		"e-ngx-pagination": "^1.3.0",
+		"e-ngx-pagination": "^5.0.0",
 		"font-awesome": "^4.7.0",
 		"lodash": "^4.17.4"
 	},
