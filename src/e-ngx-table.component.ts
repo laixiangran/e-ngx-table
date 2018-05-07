@@ -162,7 +162,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			operator: 'like', // 操作符号，可取值：like, eq
 			value: null // 筛选的值
 		},
-		render: null, // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+		render: null, // 单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event, exist}
 		event: null // 单元格点击事件, 返回当前行的数据对象
 	};
 

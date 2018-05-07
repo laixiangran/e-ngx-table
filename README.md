@@ -99,6 +99,16 @@
                 order: null,
                 render: [
                     {
+                        text: '添加',
+                        cls: 'btn-info btn-xs',
+                        exist:(obj: any) => { // 根据条件判断是否隐藏按钮
+                            return false;
+                        },
+                        event: (obj: any) => {
+                            console.log(obj);
+                        }
+                    },
+                    {
                         text: '编辑',
                         cls: 'btn-info btn-xs',
                         event: (obj: any) => {
@@ -181,7 +191,7 @@ columns: {
             ellipsis: false, // 文字超出单元格是否显示...
             // 单元格格式化，如果是函数，函数参数(value：当前单元格值, obj：单元格所在行数据对象)，单元格显示函数返回的值。
             // 如果是对象数组，就显示按钮，对象属性{text: 按钮文本, cls：按钮样式类, event：按钮点击事件}
-            render: null, //  单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text, cls, event}
+            render: null, //  单元格格式化，如果是函数(value: any, obj: any) => {}，就显示函数返回的值，如果是数组，就显示按钮{text: string 按钮文本, cls: string 按钮样式类, event: function 按钮点击事件回调函数, exist: function 判断按钮是否隐藏函数}
             event: null, // 单元格点击事件, 返回当前行的数据对象
         },
         { // 操作按钮列的设置
