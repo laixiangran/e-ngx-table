@@ -352,6 +352,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	getTableData(): Observable<any> {
 		let serverParam: any = this.deepCopyObj(this.config.serverParam);
 		delete serverParam.serverUrl;
+		delete serverParam.token;
 		return this.post(this.config.serverParam.serverUrl, serverParam);
 	}
 
