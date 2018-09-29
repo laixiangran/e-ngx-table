@@ -1,6 +1,11 @@
 {
 	"/rcs": {
-		"target": "http://192.168.0.8",
-		"secure": false
+		"target": "http://192.168.0.8:802",
+		"secure": false,
+		"pathRewrite": {
+			"^/rcs": ""
+		},
+		"changeOrigin": true,
+		"logLevel": "error"
 	}
 }

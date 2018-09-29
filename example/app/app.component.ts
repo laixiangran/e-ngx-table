@@ -25,7 +25,7 @@ export class AppComponent {
 	}];
 	option: any = {
 		serverParam: {
-			serverUrl: `${environment.serverHost}SysLogController/getSysLogListPage`,
+			serverUrl: `${environment.serverHost}/SysLogController/getSysLogListPage`,
 			token: 'AA87FE87EB7E90CE_117167E7B95C5682C836AFFD9845C6C97D95D44CEA66DC5705E63CD08F603A6500CF493097DD30FA'
 		},
 		operateBtn: [{
