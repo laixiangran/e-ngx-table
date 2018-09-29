@@ -12,6 +12,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/throw';
 import * as _ from 'lodash';
 
 import { TableDataModel } from './model/tableDataModel';
@@ -583,11 +584,10 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	/**
 	 * post请求
 	 * @param url 请求路径
-	 * @param obj 请求body
+	 * @param body 请求body
 	 * @returns {Observable<any>}
 	 */
-	post(url: string, obj: any = null): Observable<any> {
-		let body = JSON.stringify(obj);
+	post(url: string, body: any = null): Observable<any> {
 		let headers: HttpHeaders = new HttpHeaders({
 			'Content-Type': 'application/json',
 			'URMS_LOGIN_TOKEN': this.config.serverParam.token
@@ -595,7 +595,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		let options = {
 			headers: headers
 		};
-		return this.http.post(url, body, options).catch((error: HttpErrorResponse) => {
+		return this.http.post(url, body && JSON.stringify(body), options).catch((error: HttpErrorResponse) => {
 			let errMsg = (error.message) ? error.message :
 				error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 			return Observable.throw(errMsg);
