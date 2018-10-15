@@ -591,7 +591,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	post(url: string, body: any = null): Observable<any> {
 		let headers: HttpHeaders = new HttpHeaders({
 			'Content-Type': 'application/json',
-			'URMS_LOGIN_TOKEN': this.config.serverParam.token
+			'Authorization': this.config.serverParam.token
 		});
 		let options = {
 			headers: headers
