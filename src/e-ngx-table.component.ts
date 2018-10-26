@@ -146,7 +146,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		colName: '', // 字段名
 		visible: true, // 是否可见
 		print: true, // 是否可以打印
-		order: 'normal', // 排序，可取值：null, normal, asc, desc
+		order: 'null', // 排序，可取值：null, normal, asc, desc
 		search: true, // 是否加入全局搜索
 		width: null, // 单元格宽度
 		cls: 'text-center', // 单元格样式类
