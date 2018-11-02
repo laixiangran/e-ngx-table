@@ -12,20 +12,16 @@
 					       [(ngModel)]="searchText"
 					       [formControl]="searchInput"
 					       placeholder="全局搜索，多条件用空格隔开">
-					<div class="input-group-addon">
-						<span class="glyphicon glyphicon-search"></span>
-					</div>
 				</div>
 				<button class="btn btn-info" *ngIf="config.showComplexSearch" (click)="searchClick()">高级搜索</button>
 			</form>
 		</div>
 	</div>
 	<div class="complexSearchBox" [class.showComplex]="showComplexSearch">
-		<div class="btn-group btn-group-sm">
+		<div class="btn-group btn-group-xs">
 			<button class="btn btn-success" (click)="addCondition()">添加条件</button>
 			<button class="btn btn-warning" (click)="conditionList = []">清除条件</button>
-			<button class="btn btn-default" (click)="closeComplexSearch()">关闭</button>
-			<button class="btn btn-info" (click)="search()">搜索</button>
+			<button class="btn btn-danger" (click)="closeComplexSearch()">关闭</button>
 		</div>
 		<form class="form-inline formBox" #form *ngFor="let item of conditionList; let i = index;">
 			<select [name]="'columnItem' + i" class="form-control" (change)="optionChange($event, item)">
@@ -51,6 +47,9 @@
 			<input type="number" class="form-control" name="value" [(ngModel)]="item.value" *ngIf="item.type === 'number'">
 			<span class="btn btn-danger btn-xs" title="清除该条件" (click)="conditionList.splice(i, 1)"><i class="fa fa-close"></i></span>
 		</form>
+		<div *ngIf="conditionList.length > 0" style="margin-top: 10px;">
+			<button class="btn btn-info" (click)="search()">搜索</button>
+		</div>
 	</div>
 	<table class="table table-bordered table-striped table-hover ui-essence-table">
 		<thead>
@@ -95,11 +94,10 @@
 					<!--单元格内容-->
 					<ng-container *ngFor="let column of config.columns.items;">
 						<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="tdClick(column, data)">
-							<div *ngIf="!column.render" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(data[column.colName])" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
-							<div *ngIf="isFunction(column.render)" [innerHTML]="domSanitizer.bypassSecurityTrustHtml(column.render(data[column.colName], data))" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
+							<div *ngIf="!isArray(column.render)" [innerHTML]="column.content" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 							<div *ngIf="isArray(column.render)">
 								<ng-container *ngFor="let button of column.render;">
-									<button *ngIf="!isFunction(button.exist) || button.exist(data)" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="button.event(data)">{{button.text}}</button>
+									<button *ngIf="button.isShow" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="handlerBtnClick($event, button, data)">{{button.text}}</button>
 								</ng-container>
 							</div>
 						</td>

@@ -1,6 +1,10 @@
 .ui-essence-table-wrapper {
     position: relative;
 
+    button {
+        outline: none;
+    }
+
     .search-wrapper {
         margin-bottom: 10px;
 
@@ -30,16 +34,18 @@
     }
 }
 
-.complexSearchBox{
+.complexSearchBox {
     margin-bottom: 10px;
     display: none;
     border: 1px dashed green;
-    padding:10px;
+    padding: 10px;
     border-radius: 5px;
-    .formBox{
+
+    .formBox {
         margin: 5px 0;
     }
-    &.showComplex{
+
+    &.showComplex {
         display: block;
     }
 }

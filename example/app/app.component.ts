@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { ENgxTableComponent } from '../../src/e-ngx-table.component';
 import { environment } from '../environments/environment';
-import {Sys} from './utils/sys';
+import { Sys } from './utils/sys';
+import { ENgxTableComponent } from '../../src';
 
 @Component({
 	selector: 'app-root',
@@ -10,19 +10,6 @@ import {Sys} from './utils/sys';
 })
 export class AppComponent {
 	@ViewChild(ENgxTableComponent) table: ENgxTableComponent;
-	data = [{
-		text: '编辑中',
-		value: 2
-	}, {
-		text: '已通过',
-		value: 1
-	}, {
-		text: '未通过',
-		value: 0
-	}, {
-		text: '待审核',
-		value: 3 || null
-	}];
 	option: any = {
 		serverParam: {
 			serverUrl: `${environment.serverHost}/SysLogController/getSysLogListPage`,
@@ -39,97 +26,72 @@ export class AppComponent {
 		showComplexSearch: true,
 		columns: {
 			primaryKey: 'id', // （一般要配置，如果错了rowSelect事件会失效）
-			items: [/*{
-				label: '操作人',
-				colName: 'user',
-				search: false,
-				render: (value: any) => {
-					if (value) {
-						return value.realName;
-					} else {
-						return '/';
-					}
-				}
-			}, */{
-				label: '操作时间',
-				colName: 'date',
-				search: true,
-				complexSearch: {
-					enable: true,
-					type: 'string'
-				},
-				render: (value) => {
-					return value ? Sys.dateFormat(value, 'yyyy-MM-dd') : '/';
-				}
-			}, {
-				label: '描述信息',
-				colName: 'info',
-				search: false,
-				complexSearch: {
-					enable: true,
-					type: 'string'
-				},
-				render: (value) => {
-					return value ? value : '/';
-				}
-			}, {
-				label: '请求方法',
-				colName: 'method',
-				search: true,
-				complexSearch: {
-					enable: true,
-					type: 'select',
-					data: this.data
-				},
-				render: (value) => {
-					return value ? value : '/';
-				}
-			}, {
-				label: '请求路径',
-				colName: 'cclass',
-				search: false,
-				complexSearch: {
-					enable: true,
-					type: 'string'
-				},
-				render: (value) => {
-					return value ? value : '/';
-				}
-			}, {
-				label: '操作',
-				order: null,
-				colName: null,
-				width: 300,
-				render: [{
-					text: '微信通知',
-					type: 'button',
-					cls: 'btn-xs btn-info radius-button',
-					exist: () => {
-						return false;
+			items: [
+				{
+					label: '操作时间',
+					colName: 'date',
+					search: false,
+					render: (value) => {
+						return value ? Sys.dateFormat(value, 'yyyy-MM-dd') : '/';
 					}
 				}, {
-					text: '附件',
-					type: 'button',
-					cls: 'btn-xs btn-success radius-button',
-					exist: () => {
-						return true;
+					label: '描述信息',
+					colName: 'info',
+					complexSearch: {
+						enable: true,
+						type: 'string'
+					},
+					render: (value) => {
+						return value ? `<span style="color: red;">${value}</span>` : '/';
 					}
 				}, {
-					text: '编辑',
-					type: 'button',
-					cls: 'btn-xs btn-warning radius-button',
-					exist: () => {
-						return false;
+					label: '请求方法',
+					colName: 'method',
+					complexSearch: {
+						enable: true,
+						type: 'string'
+					},
+					render: (value) => {
+						return value ? value : '/';
 					}
 				}, {
-					text: '删除',
-					type: 'button',
-					cls: 'btn-xs btn-danger radius-button',
-					exist: () => {
-						return true;
+					label: '请求路径',
+					colName: 'cclass',
+					complexSearch: {
+						enable: true,
+						type: 'string'
+					},
+					render: (value) => {
+						return value ? value : '/';
 					}
+				}, {
+					label: '操作',
+					order: null,
+					colName: null,
+					width: 300,
+					render: [
+						{
+							text: '编辑',
+							type: 'button',
+							cls: 'btn-xs btn-warning radius-button',
+							event: () => {
+								console.log('编辑');
+							},
+							exist: () => {
+								return true;
+							}
+						}, {
+							text: '删除',
+							type: 'button',
+							cls: 'btn-xs btn-danger radius-button',
+							event: () => {
+								console.log('删除');
+							},
+							exist: () => {
+								return false;
+							}
+						}]
 				}]
-			}]
 		}
 	};
 

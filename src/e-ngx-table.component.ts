@@ -24,7 +24,6 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 	styleUrls: ['./e-ngx-table.component.scss']
 })
 export class ENgxTableComponent implements OnInit, OnDestroy {
-
 	private getDataSubscription: Subscription;
 	private searchInputSubscription: Subscription;
 
@@ -146,7 +145,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 		colName: '', // 字段名
 		visible: true, // 是否可见
 		print: true, // 是否可以打印
-		order: 'null', // 排序，可取值：null, normal, asc, desc
+		order: null, // 排序，可取值：null, normal, asc, desc
 		search: true, // 是否加入全局搜索
 		width: null, // 单元格宽度
 		cls: 'text-center', // 单元格样式类
@@ -178,17 +177,11 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 				.switchMap((value: any) => { // 保证请求顺序
 					this.isSearching = true;
 					this.config.serverParam.search = value;
-					return this.getTableData();
+					return this.getDataServer();
 				})
-				.subscribe(
-					(serverData: any) => {
+				.subscribe((serverData: any) => {
 						if (serverData.code === 'ok') {
-							this.tableData = <TableDataModel> serverData.result;
-							this.isSearching = false;
-							if (this.tableIsloaded) {
-								this.tableRefresh.emit(this);
-							}
-							this.tableIsloaded = true;
+							this.handlerTableData(serverData.result);
 						} else {
 							throw new Error(serverData.info);
 						}
@@ -198,23 +191,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 					}
 				);
 		} else {
-			this.getTableData().subscribe(
-				(serverData: any) => {
-					if (serverData.code === 'ok') {
-						this.tableData = <TableDataModel> serverData.result;
-						this.isSearching = false;
-						if (this.tableIsloaded) {
-							this.tableRefresh.emit(this);
-						}
-						this.tableIsloaded = true;
-					} else {
-						throw new Error(serverData.info);
-					}
-				},
-				(error: any) => {
-					throw new Error(error);
-				}
-			);
+			this.getTableData();
 		}
 	}
 
@@ -279,23 +256,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			})
 		}
 		this.config.serverParam.conditions = conditions;
-		this.getTableData().subscribe(
-			(serverData: any) => {
-				if (serverData.code === 'ok') {
-					this.tableData = <TableDataModel> serverData.result;
-					this.isSearching = false;
-					if (this.tableIsloaded) {
-						this.tableRefresh.emit(this);
-					}
-					this.tableIsloaded = true;
-				} else {
-					throw new Error(serverData.info);
-				}
-			},
-			(error: any) => {
-				throw new Error(error);
-			}
-		);
+		this.getTableData();
 	}
 
 	/**
@@ -311,24 +272,9 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 			})
 		}
 		this.config.serverParam.conditions = conditions;
-		this.getTableData().subscribe(
-			(serverData: any) => {
-				if (serverData.code === 'ok') {
-					this.tableData = <TableDataModel> serverData.result;
-					this.isSearching = false;
-					if (this.tableIsloaded) {
-						this.tableRefresh.emit(this);
-					}
-					this.tableIsloaded = true;
-				} else {
-					throw new Error(serverData.info);
-				}
-			},
-			(error: any) => {
-				throw new Error(error);
-			}
-		);
+		this.getTableData();
 	}
+
 	/**
 	 * 单元格点击事件
 	 * @param column
@@ -347,9 +293,49 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 
 	/**
 	 * 获取表格数据
+	 */
+	getTableData() {
+		this.getDataServer().subscribe((serverData: any) => {
+			if (serverData.code === 'ok') {
+					this.handlerTableData(serverData.result);
+				} else {
+					throw new Error(serverData.info);
+				}
+			}, (error: any) => {
+				throw new Error(error);
+			}
+		);
+	}
+
+	/**
+	 * 处理表格数据
+	 */
+	handlerTableData(tableData: TableDataModel) {
+		tableData.items.forEach((dataItem: any) => {
+			this.config.columns.items.forEach((item: any) => {
+				item.content = this.domSanitizer.bypassSecurityTrustHtml(dataItem[item.colName]);
+				if (item.render && this.isFunction(item.render)) {
+					item.content = this.domSanitizer.bypassSecurityTrustHtml(item.render(dataItem[item.colName], dataItem));
+				} else if (this.isArray(item.render)) {
+					item.render.forEach((render: any) => {
+						render.isShow = !this.isFunction(render.exist) || render.exist(dataItem);
+					});
+				}
+			});
+		});
+		this.tableData = tableData;
+		this.isSearching = false;
+		if (this.tableIsloaded) {
+			this.tableRefresh.emit(this);
+		}
+		this.tableIsloaded = true;
+	}
+
+	/**
+	 * 获取表格数据服务
 	 * @returns {Observable<any>}
 	 */
-	getTableData(): Observable<any> {
+	getDataServer(): Observable<any> {
 		let serverParam: any = this.deepCopyObj(this.config.serverParam);
 		delete serverParam.serverUrl;
 		delete serverParam.token;
@@ -558,18 +544,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	 * 刷新列表数据
 	 */
 	refresh(): void {
-		this.getDataSubscription = this.getTableData().subscribe(
-			(serverData: any) => {
-				if (serverData.code == 'ok') {
-					this.tableData = <TableDataModel> serverData.result;
-					this.isSearching = false;
-					this.tableRefresh.emit(this);
-				}
-			},
-			(error: any) => {
-				throw new Error(error);
-			}
-		);
+		this.getTableData();
 	}
 
 	/**
@@ -591,7 +566,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	post(url: string, body: any = null): Observable<any> {
 		let headers: HttpHeaders = new HttpHeaders({
 			'Content-Type': 'application/json',
-			'Authorization': this.config.serverParam.token
+			'Authorization': this.config.serverParam.token,
+			'URMS_LOGIN_TOKEN': this.config.serverParam.token
 		});
 		let options = {
 			headers: headers
@@ -601,5 +577,16 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 				error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 			return Observable.throw(errMsg);
 		});
+	}
+
+	/**
+	 * 操作列按钮点击
+	 * @param {MouseEvent} evt
+	 * @param button
+	 * @param data
+	 */
+	handlerBtnClick(evt: MouseEvent, button: any, data: any) {
+		evt.stopPropagation();
+		button.event(data);
 	}
 }
