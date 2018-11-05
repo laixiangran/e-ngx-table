@@ -312,10 +312,11 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	 */
 	handlerTableData(tableData: TableDataModel) {
 		tableData.items.forEach((dataItem: any) => {
+			dataItem.tdContent = {};
 			this.config.columns.items.forEach((item: any) => {
-				item.content = this.domSanitizer.bypassSecurityTrustHtml(dataItem[item.colName]);
+				dataItem.tdContent[item.colName] = this.domSanitizer.bypassSecurityTrustHtml(dataItem[item.colName]);
 				if (item.render && this.isFunction(item.render)) {
-					item.content = this.domSanitizer.bypassSecurityTrustHtml(item.render(dataItem[item.colName], dataItem));
+					dataItem.tdContent[item.colName] = this.domSanitizer.bypassSecurityTrustHtml(item.render(dataItem[item.colName], dataItem));
 				} else if (this.isArray(item.render)) {
 					item.render.forEach((render: any) => {
 						render.isShow = !this.isFunction(render.exist) || render.exist(dataItem);
@@ -554,7 +555,7 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	 * @returns {any}
 	 */
 	trackById(index: any, data: any): any {
-		return data.id && data.c_id;
+		return data[this.config.columns.primaryKey];
 	}
 
 	/**
