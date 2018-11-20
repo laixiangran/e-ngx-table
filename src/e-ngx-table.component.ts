@@ -312,8 +312,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	 */
 	handlerTableData(tableData: TableDataModel) {
 		tableData.items.forEach((dataItem: any) => {
-			dataItem.tdContent = {};
-			dataItem.btnRender = [];
+			dataItem.tdContent = {}; // 每行单元格展示的内容（包括样式）
+			dataItem.btnRender = []; // 每行操作列中的按钮组
 			this.config.columns.items.forEach((item: any) => {
 				dataItem.tdContent[item.colName] = this.domSanitizer.bypassSecurityTrustHtml(dataItem[item.colName]);
 				if (item.render && this.isFunction(item.render)) {
