@@ -321,7 +321,8 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 				} else if (this.isArray(item.render)) {
 					item.render.forEach((render: any) => {
 						const temp_render = JSON.parse(JSON.stringify(render));
-						temp_render.isShow = this.isFunction(render.exist) ? render.exist(dataItem) : !!render.exist;
+						temp_render.event = render.event;
+						temp_render.isShow = !this.isFunction(render.exist) || render.exist(dataItem);
 						dataItem.btnRender.push(temp_render);
 					});
 				}
