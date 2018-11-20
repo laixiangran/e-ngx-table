@@ -96,7 +96,7 @@
 						<td *ngIf="column.visible" [ngClass]="column.cls" [ngStyle]="column.style" [class.hidden-print]="!column.print" [class.td-select]="column.event" (click)="tdClick(column, data)">
 							<div *ngIf="!isArray(column.render)" [innerHTML]="data.tdContent[column.colName]" [style.width]="column.width" [class.ellip]="column.ellipsis"></div>
 							<div *ngIf="isArray(column.render)">
-								<ng-container *ngFor="let button of column.render;">
+								<ng-container *ngFor="let button of data.btnRender;">
 									<button *ngIf="button.isShow" style="margin: 2px;" type="button" class="btn" [ngClass]="button.cls" (click)="handlerBtnClick($event, button, data)">{{button.text}}</button>
 								</ng-container>
 							</div>

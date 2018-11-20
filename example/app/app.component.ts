@@ -13,7 +13,7 @@ export class AppComponent {
 	option: any = {
 		serverParam: {
 			serverUrl: `${environment.serverHost}/SysLogController/getSysLogListPage`,
-			token: 'AA87FE87EB7E90CE_117167E7B95C5682C836AFFD9845C6C97D95D44CEA66DC5705E63CD08F603A6500CF493097DD30FA'
+			token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJBUFAiLCJ1c2VyX2lkIjoiNjQ5ZWM4M2E0ZDZlNDZmYTkxZGFmMDJlYjBiYTIzODUiLCJpc3MiOiJTZXJ2aWNlIiwic2Vzc2lvbl9pZCI6IjM5MjMwRUZFQzdBRDA5QUU5RUJBOUU5OEM0OUUyRjVBIiwiZXhwIjoxNTQzNTQ5ODg0LCJpYXQiOjE1NDI2ODU4ODR9.RcC6qrkFRat-gRQVDATkSyO86PuNBgYqoG4kac6enYU'
 		},
 		operateBtn: [{
 			text: '添加',
@@ -87,8 +87,8 @@ export class AppComponent {
 							event: () => {
 								console.log('删除');
 							},
-							exist: () => {
-								return false;
+							exist: (obj) => {
+								return obj.cclass === '角色表';
 							}
 						}]
 				}]

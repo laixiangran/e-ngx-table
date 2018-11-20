@@ -1,9 +1,9 @@
 {
-	"/rcs": {
-		"target": "http://192.168.0.8:802",
+	"/hdawi": {
+		"target": "http://192.168.0.8:81",
 		"secure": false,
 		"pathRewrite": {
-			"^/rcs": ""
+			"^/hdawi": "/hdawi"
 		},
 		"changeOrigin": true,
 		"logLevel": "error"

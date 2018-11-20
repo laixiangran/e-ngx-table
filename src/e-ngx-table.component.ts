@@ -313,13 +313,16 @@ export class ENgxTableComponent implements OnInit, OnDestroy {
 	handlerTableData(tableData: TableDataModel) {
 		tableData.items.forEach((dataItem: any) => {
 			dataItem.tdContent = {};
+			dataItem.btnRender = [];
 			this.config.columns.items.forEach((item: any) => {
 				dataItem.tdContent[item.colName] = this.domSanitizer.bypassSecurityTrustHtml(dataItem[item.colName]);
 				if (item.render && this.isFunction(item.render)) {
 					dataItem.tdContent[item.colName] = this.domSanitizer.bypassSecurityTrustHtml(item.render(dataItem[item.colName], dataItem));
 				} else if (this.isArray(item.render)) {
 					item.render.forEach((render: any) => {
-						render.isShow = !this.isFunction(render.exist) || render.exist(dataItem);
+						const temp_render = JSON.parse(JSON.stringify(render));
+						temp_render.isShow = this.isFunction(render.exist) ? render.exist(dataItem) : !!render.exist;
+						dataItem.btnRender.push(temp_render);
 					});
 				}
 			});
